@@ -6,7 +6,7 @@ public class GameManager : MonoBehaviour
 {
     public GameObject player { get; private set; }
     private InputManager inputManager;
-    public float playerSpeed;
+    //public float playerSpeed;
 
     enum Direction : int
     {
@@ -25,6 +25,7 @@ public class GameManager : MonoBehaviour
         inputManager.ManageInput();
     }
 
+    /*
     public void movePlayer(int direction)
     {
         switch(direction)
@@ -34,4 +35,5 @@ public class GameManager : MonoBehaviour
                 break;
         }
     }
+    */
 }

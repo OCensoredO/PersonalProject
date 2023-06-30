@@ -10,13 +10,13 @@ public class CameraController : MonoBehaviour
     void Start()
     {
         playerObject = GameObject.Find("Player");
-        cameraPositionOffset = new Vector3(0.0f, 0.0f, -5.0f);
+        cameraPositionOffset = gameObject.transform.position;
     }
 
 
     void Update()
     {
         //this.transform.LookAt(playerObject.transform);
-        this.transform.position = playerObject.transform.position + cameraPositionOffset;
+        this.transform.position = cameraPositionOffset + new Vector3(0.0f, 0.0f, playerObject.transform.position.z);
     }
 }
