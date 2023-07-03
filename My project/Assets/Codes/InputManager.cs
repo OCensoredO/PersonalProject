@@ -7,14 +7,6 @@ public class InputManager : MonoBehaviour
     GameManager gameManager;
     PlayerController playerController;
 
-    enum Direction : int
-    {
-        Forward,
-        Backward,
-        Left,
-        Right
-    }
-
     private void Start()
     {
         gameManager = GameObject.FindGameObjectWithTag("GameManager").GetComponent<GameManager>();
@@ -23,33 +15,16 @@ public class InputManager : MonoBehaviour
 
     public void ManageInput()
     {
-        // 앞뒤 이동
-        if (Input.GetKey(KeyCode.UpArrow))
+        // 앞뒤, 좌우 이동
+        if (Input.GetAxisRaw("Horizontal") != 0.0f || Input.GetAxisRaw("Vertical") != 0.0f)
         {
-            //gameManager.movePlayer((int)Direction.FORWARD);
-            playerController.Move((int)Direction.Forward);
-        }
-        else if(Input.GetKey(KeyCode.DownArrow))
-
-        {
-            playerController.Move((int)Direction.Backward);
-        }
-        // 좌우 이동
-        if (Input.GetKey(KeyCode.LeftArrow))
-
-        {
-            playerController.Move((int)Direction.Left);
-        }
-        else if (Input.GetKey(KeyCode.RightArrow))
-
-        {
-            playerController.Move((int)Direction.Right);
+            playerController.Move(new Vector3(Input.GetAxisRaw("Horizontal"), 0.0f, Input.GetAxisRaw("Vertical")));
         }
 
         // 총알 발사
         if (Input.GetKeyDown(KeyCode.Z))
         {
-            //Shoot();
+            playerController.Shoot();
         }
     }
 }

@@ -5,44 +5,19 @@ using UnityEngine;
 public class PlayerController : MonoBehaviour
 {
     public float playerSpeed;
+    public GameObject bulletPrefab;
+    public float bulletSpeed;
 
-    enum Direction : int
+    public void Move(Vector3 direction)
     {
-        Forward,
-        Backward,
-        Left,
-        Right
-    }
-
-    void Start()
-    {
-        
-    }
-
-
-    public void Move(int direction)
-    {
-        switch (direction)
-        {
-            case (int)Direction.Forward:
-                gameObject.transform.position += new Vector3(0.0f, 0.0f, playerSpeed * Time.deltaTime);
-                break;
-            case (int)Direction.Backward:
-                gameObject.transform.position -= new Vector3(0.0f, 0.0f, playerSpeed * Time.deltaTime);
-                break;
-            case (int)Direction.Left:
-                gameObject.transform.position -= new Vector3(playerSpeed * Time.deltaTime, 0.0f, 0.0f);
-                break;
-            case (int)Direction.Right:
-                gameObject.transform.position += new Vector3(playerSpeed * Time.deltaTime, 0.0f, 0.0f);
-                break;
-            default:
-                break;
-        }
+        transform.position += direction * playerSpeed * Time.deltaTime;
+        transform.LookAt(transform.position + direction);
     }
 
     public void Shoot()
     {
-
+        GameObject bullet = Instantiate(bulletPrefab, gameObject.transform.position + new Vector3(0.0f, 0.0f, 2.0f), gameObject.transform.rotation);
+        bullet.GetComponent<Rigidbody>().AddForce(transform.forward * bulletSpeed);
+        Destroy(bullet, 2.0f);
     }
 }
