@@ -22,9 +22,15 @@ public class InputManager : MonoBehaviour
         }
 
         // ÃÑ¾Ë ¹ß»ç
-        if (Input.GetKeyDown(KeyCode.Z))
+        if (Input.GetKeyDown(KeyCode.F))
         {
             playerController.Shoot();
+        }
+
+        // Â«Çª
+        if (Input.GetKeyDown(KeyCode.Space))
+        {
+            playerController.Jump();
         }
     }
 }
