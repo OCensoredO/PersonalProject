@@ -1,5 +1,10 @@
 {
-    "name": "John",
-    "level": 10,
-    "score": 500
+  "defaultBullet": {
+    "name": "default",
+    "speed": 1000,
+    "damage": 
+  }
+  "name": "John",
+  "level": 10,
+  "score": 500
 }
