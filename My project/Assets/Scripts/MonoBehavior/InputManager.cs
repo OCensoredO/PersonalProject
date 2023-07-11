@@ -13,24 +13,29 @@ public class InputManager : MonoBehaviour
         playerController = GameObject.FindGameObjectWithTag("Player").GetComponent<PlayerController>();
     }
 
-    public void ManageInput()
+    public Command ManageInput()
     {
         // ¾ÕµÚ, ÁÂ¿ì ÀÌµ¿
         if (Input.GetAxisRaw("Horizontal") != 0.0f || Input.GetAxisRaw("Vertical") != 0.0f)
         {
-            playerController.Move(new Vector3(Input.GetAxisRaw("Horizontal"), 0.0f, Input.GetAxisRaw("Vertical")));
+            //playerController.Move(new Vector3(Input.GetAxisRaw("Horizontal"), 0.0f, Input.GetAxisRaw("Vertical")));
+            return new MoveCommand(8, new Vector3(Input.GetAxisRaw("Horizontal"), 0.0f, Input.GetAxisRaw("Vertical")));
         }
 
         // ÃÑ¾Ë ¹ß»ç
         if (Input.GetKeyDown(KeyCode.F))
         {
             playerController.Shoot();
+            return null;
         }
 
         // Â«Çª
         if (Input.GetKeyDown(KeyCode.Space))
         {
-            playerController.Jump();
+            //playerController.Jump();
+            return new JumpCommand(300, false);
         }
+
+        return null;
     }
 }

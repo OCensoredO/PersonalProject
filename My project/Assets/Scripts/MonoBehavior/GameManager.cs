@@ -8,12 +8,6 @@ public class GameManager : MonoBehaviour
     private InputManager inputManager;
     //public float playerSpeed;
 
-    enum Direction : int
-    {
-        FORWARD,
-        BACKWARD
-    }
-
     void Start()
     {
         inputManager = gameObject.GetComponent<InputManager>();
@@ -22,18 +16,7 @@ public class GameManager : MonoBehaviour
 
     void Update()
     {
-        inputManager.ManageInput();
+        Command command = inputManager.ManageInput();
+        if (command != null) command.Execute(player);
     }
-
-    /*
-    public void movePlayer(int direction)
-    {
-        switch(direction)
-        {
-            case (int)Direction.FORWARD:
-                player.transform.position += new Vector3(0.0f, 0.0f, playerSpeed * Time.deltaTime);
-                break;
-        }
-    }
-    */
 }

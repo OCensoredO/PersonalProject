@@ -2,9 +2,11 @@
   "defaultBullet": {
     "name": "default",
     "speed": 1000,
-    "damage": 
+    "damage": 1
+  },
+  "fireBullet": {
+    "name": "fire",
+    "speed": 1000,
+    "damage": 3
   }
-  "name": "John",
-  "level": 10,
-  "score": 500
 }
