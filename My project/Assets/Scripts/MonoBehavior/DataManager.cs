@@ -6,18 +6,17 @@ using Newtonsoft.Json;
 
 public class DataManager : MonoBehaviour
 {
+    private string jsonData;
+    public BulletData bulletData { get; private set; }
+
     void Start()
     {
         string filePath = Path.Combine(Application.streamingAssetsPath, "Data.json");
 
         if (File.Exists(filePath))
         {
-            string jsonData = File.ReadAllText(filePath);
-            PlayerData playerData = JsonConvert.DeserializeObject<PlayerData>(jsonData);
-
-            Debug.Log("플레이어 이름: " + playerData.name);
-            Debug.Log("플레이어 레벨: " + playerData.level);
-            Debug.Log("플레이어 점수: " + playerData.score);
+            jsonData = File.ReadAllText(filePath);
+            bulletData = JsonConvert.DeserializeObject<BulletData>(jsonData);
         }
         else
         {

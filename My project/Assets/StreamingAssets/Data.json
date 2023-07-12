@@ -1,12 +1,14 @@
 {
-  "defaultBullet": {
-    "name": "default",
-    "speed": 1000,
-    "damage": 1
-  },
-  "fireBullet": {
-    "name": "fire",
-    "speed": 1000,
-    "damage": 3
-  }
+  "bullets": [
+    {
+      "name": "defaultBullet",
+      "speed": 1000,
+      "damage": 1
+    },
+    {
+      "name": "fireBullet",
+      "speed": 1000,
+      "damage": 3
+    }
+  ]
 }
