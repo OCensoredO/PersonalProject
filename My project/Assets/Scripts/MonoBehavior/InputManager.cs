@@ -21,7 +21,6 @@ public class InputManager : MonoBehaviour
         // Â«Çª
         if (Input.GetKeyDown(KeyCode.Space))
         {
-            //playerController.Jump();
             return new JumpCommand(300, playerController.isInAir);
         }
 
@@ -31,6 +30,9 @@ public class InputManager : MonoBehaviour
             //playerController.Shoot();
             //return null;
             //return new ShootCommand(Resources.Load(, 1000);
+            GameObject bulletPrefab = Resources.Load(dataManager.gameData.bullets[1].prefab) as GameObject;
+            int bulletSpeed = dataManager.gameData.bullets[1].speed;
+            return new ShootCommand(bulletPrefab, bulletSpeed);
         }
 
         // ¾ÕµÚ, ÁÂ¿ì ÀÌµ¿

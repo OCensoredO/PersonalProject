@@ -7,7 +7,7 @@ using Newtonsoft.Json;
 public class DataManager : MonoBehaviour
 {
     private string jsonData;
-    public BulletData bulletData { get; private set; }
+    public GameData gameData { get; private set; }
 
     void Start()
     {
@@ -16,7 +16,7 @@ public class DataManager : MonoBehaviour
         if (File.Exists(filePath))
         {
             jsonData = File.ReadAllText(filePath);
-            bulletData = JsonConvert.DeserializeObject<BulletData>(jsonData);
+            gameData = JsonConvert.DeserializeObject<GameData>(jsonData);
         }
         else
         {

@@ -56,7 +56,9 @@ public class ShootCommand : Command
 
     public override void Execute(GameObject gameObject)
     {
-        GameObject bullet = GameObject.Instantiate(bulletPrefab, gameObject.transform.position + new Vector3(0.0f, 0.0f, 2.0f), gameObject.transform.rotation);
+        Vector3 bulletPosition = gameObject.transform.position + new Vector3(0.0f, 0.0f, 2.0f);
+        Quaternion bulletRotation = gameObject.transform.rotation;
+        GameObject bullet = GameObject.Instantiate(bulletPrefab, bulletPosition, bulletRotation);
         bullet.GetComponent<Rigidbody>().AddForce(gameObject.transform.forward * bulletSpeed);
         GameObject.Destroy(bullet, 2.0f);
     }

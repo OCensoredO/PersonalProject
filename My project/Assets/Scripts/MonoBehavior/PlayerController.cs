@@ -8,7 +8,7 @@ public class PlayerController : MonoBehaviour
     public GameObject bulletPrefab;
     public int bulletSpeed = 1000;
     public int jumpForce = 300;
-    public bool isInAir { get; private set; }
+    public bool isInAir;
 
     private void Start()
     {
