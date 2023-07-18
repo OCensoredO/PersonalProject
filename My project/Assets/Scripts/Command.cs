@@ -19,7 +19,23 @@ public class MoveCommand : Command
     public override void Execute(GameObject gameObject)
     {
         gameObject.transform.position += direction * moveSpeed * Time.deltaTime;
-        gameObject.transform.LookAt(gameObject.transform.position + direction);
+        //gameObject.transform.LookAt(gameObject.transform.position + direction);
+        if (direction.z != 0.0f)
+        {
+            gameObject.transform.LookAt(gameObject.transform.position + new Vector3(0, 0, direction.z));
+        }
+        else
+        {
+            gameObject.transform.LookAt(gameObject.transform.position + direction);
+        }
+    }
+}
+
+public class TurnCommand : Command
+{
+    public override void Execute(GameObject gameObject)
+    {
+        gameObject.transform.LookAt(gameObject.transform.position + Vector3.forward);
     }
 }
 

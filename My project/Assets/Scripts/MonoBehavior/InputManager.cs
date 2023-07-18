@@ -24,12 +24,15 @@ public class InputManager : MonoBehaviour
             return new JumpCommand(300, playerController.isInAir);
         }
 
+        // µÚ º¸±â(´ú ±¸Çö)
+        if (Input.GetKeyDown(KeyCode.R))
+        {
+            return new TurnCommand();
+        }
+
         // ÃÑ¾Ë ¹ß»ç
         if (Input.GetKeyDown(KeyCode.F))
         {
-            //playerController.Shoot();
-            //return null;
-            //return new ShootCommand(Resources.Load(, 1000);
             GameObject bulletPrefab = Resources.Load(dataManager.gameData.bullets[1].prefab) as GameObject;
             int bulletSpeed = dataManager.gameData.bullets[1].speed;
             return new ShootCommand(bulletPrefab, bulletSpeed);
@@ -41,6 +44,7 @@ public class InputManager : MonoBehaviour
             //playerController.Move(new Vector3(Input.GetAxisRaw("Horizontal"), 0.0f, Input.GetAxisRaw("Vertical")));
             return new MoveCommand(8, new Vector3(Input.GetAxisRaw("Horizontal"), 0.0f, Input.GetAxisRaw("Vertical")));
         }
+        
         return null;
     }
 }
