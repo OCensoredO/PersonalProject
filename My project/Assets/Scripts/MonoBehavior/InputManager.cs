@@ -21,7 +21,7 @@ public class InputManager : MonoBehaviour
         // Â«Çª
         if (Input.GetKeyDown(KeyCode.Space))
         {
-            return new JumpCommand(300, playerController.isInAir);
+            //return new JumpCommand(300, playerController.isInAir);
         }
 
         // µÚ º¸±â(´ú ±¸Çö)

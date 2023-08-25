@@ -8,18 +8,20 @@ public class PlayerController : MonoBehaviour
     public GameObject bulletPrefab;
     public int bulletSpeed = 1000;
     public int jumpForce = 300;
-    public bool isInAir;
+    //public bool isInAir;
 
     private void Start()
     {
-        isInAir = false;
+        //isInAir = false;
     }
 
     private void OnCollisionEnter(Collision collision)
     {
+        /*
         if (collision.gameObject.tag == "Ground")
         {
             isInAir = false;
         }
+        */
     }
 }
