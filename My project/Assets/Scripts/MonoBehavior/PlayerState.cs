@@ -1,8 +1,7 @@
 using UnityEngine;
 
-/*
- public abstact class PlayerState
+ public abstract class PlayerState
 {
-    virtual void 
+    public abstract void handleInput();
 }
-*/
+

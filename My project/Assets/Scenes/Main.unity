@@ -290,7 +290,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 53619526}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 594c00ff5e2403b4bb4a25b53ecb5334, type: 3}
   m_Name: 
@@ -436,11 +436,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fb3ae33459c00bb459e1936eacaf46fd, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  playerSpeed: 5
-  bulletPrefab: {fileID: 8303262792600227394, guid: b89e85238af55284f8275ad859726c6d, type: 3}
-  bulletSpeed: 1000
-  jumpForce: 300
-  isInAir: 0
+  rd: {fileID: 0}
+  coll: {fileID: 0}
 --- !u!1 &705507993
 GameObject:
   m_ObjectHideFlags: 0
