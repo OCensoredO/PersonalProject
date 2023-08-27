@@ -136,6 +136,7 @@ GameObject:
   - component: {fileID: 18462300}
   - component: {fileID: 18462299}
   - component: {fileID: 18462303}
+  - component: {fileID: 18462304}
   m_Layer: 0
   m_Name: Dummy
   m_TagString: Enemy
@@ -232,11 +233,24 @@ Rigidbody:
   m_Mass: 1
   m_Drag: 0
   m_AngularDrag: 0.05
-  m_UseGravity: 1
+  m_UseGravity: 0
   m_IsKinematic: 0
   m_Interpolate: 0
   m_Constraints: 0
   m_CollisionDetection: 0
+--- !u!114 &18462304
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 18462298}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 248fac85c2c81ee47ae498dcc658d625, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  hp: 20
 --- !u!1 &53619526
 GameObject:
   m_ObjectHideFlags: 0
@@ -263,7 +277,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 53619526}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: a3febf5dbe7fe3243ba06670169b11a1, type: 3}
   m_Name: 
@@ -436,8 +450,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fb3ae33459c00bb459e1936eacaf46fd, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  playerSpeed: 8
+  jumpForce: 300
+  isInAir: 0
+  is2D: 0
   rd: {fileID: 0}
   coll: {fileID: 0}
+  dataManager: {fileID: 0}
 --- !u!1 &705507993
 GameObject:
   m_ObjectHideFlags: 0
@@ -839,6 +858,7 @@ GameObject:
   - component: {fileID: 1048019152}
   - component: {fileID: 1048019154}
   - component: {fileID: 1048019153}
+  - component: {fileID: 1048019155}
   m_Layer: 5
   m_Name: SampleHP
   m_TagString: Untagged
@@ -901,6 +921,19 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1048019151}
   m_CullTransparentMesh: 1
+--- !u!114 &1048019155
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1048019151}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a833cd609f42eae408e924a725d4a3b0, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  dummy: {fileID: 0}
 --- !u!1 &1213683433
 GameObject:
   m_ObjectHideFlags: 0

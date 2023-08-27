@@ -18,7 +18,6 @@ public class MoveCommand : Command
 
     public override void Execute(GameObject gameObject)
     {
-        /*
         gameObject.transform.position += direction * moveSpeed * Time.deltaTime;
         //gameObject.transform.LookAt(gameObject.transform.position + direction);
         if (direction.z != 0.0f)
@@ -29,7 +28,6 @@ public class MoveCommand : Command
         {
             gameObject.transform.LookAt(gameObject.transform.position + direction);
         }
-        */
     }
 }
 
