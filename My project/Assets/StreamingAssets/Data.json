@@ -12,5 +12,11 @@
       "damage": 3,
       "prefab": "Prefabs/fireBullet"
     }
+    {
+      "name": "plasmaBullet",
+      "speed": 450,
+      "damage": 5,
+      "prefab": "Prefabs/plasmaBullet"
+    }
   ]
 }

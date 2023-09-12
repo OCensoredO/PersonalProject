@@ -49,12 +49,21 @@ public class PlayerController : MonoBehaviour
         // 총알 발사
         if (Input.GetKeyDown(KeyCode.F))
         {
+            // 총알 데이터 로드
             GameObject bulletPrefab = Resources.Load(dataManager.gameData.bullets[1].prefab) as GameObject;
             int bulletSpeed = dataManager.gameData.bullets[1].speed;
+
+            // 총알 발사 위치, 회전값 설정
             Vector3 bulletPosition = gameObject.transform.position + new Vector3(0.0f, 0.0f, 2.0f);
             Quaternion bulletRotation = gameObject.transform.rotation;
+
+            // 총알 instantiate
             GameObject bullet = Instantiate(bulletPrefab, bulletPosition, bulletRotation);
+
+            // 총알 날리기
             bullet.GetComponent<Rigidbody>().AddForce(gameObject.transform.forward * bulletSpeed);
+
+            // 일정 시간 후 파괴
             Destroy(bullet, 2.0f);
             //return new ShootCommand(bulletPrefab, bulletSpeed);
         }
