@@ -2,7 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-// 하드코딩, 고칠 것
+// 하드코딩
 public class PlayerController : MonoBehaviour
 {
     public Player player;
@@ -12,7 +12,7 @@ public class PlayerController : MonoBehaviour
     public int jumpForce = 300;
 
     public bool isInAir;
-    public bool is2D;
+    public bool isTargetting;
 
     //public GameObject bulletPrefab;
     public Rigidbody rd;
@@ -25,12 +25,13 @@ public class PlayerController : MonoBehaviour
         coll = gameObject.GetComponent<Collider>();
         dataManager = GameObject.FindGameObjectWithTag("GameManager").GetComponent<DataManager>();
         isInAir = false;
-        is2D = false;
+        isTargetting = true;
     }
 
+    // 기능 구현에 우선 힘쓰고자 Update 함수 내에 구현
     private void Update()
     {
-        // 짬푸
+        // 점프
         if (Input.GetKeyDown(KeyCode.Space))
         {
             if (isInAir) return;
@@ -39,19 +40,23 @@ public class PlayerController : MonoBehaviour
             //return new JumpCommand(300, playerController.isInAir);
         }
 
-        // 2차원 이동/3차원 이동 전환
-        if (Input.GetKeyDown(KeyCode.R))
+        // (구)2차원 이동/3차원 이동 전환
+        // 조준 모드 전환
+        if (Input.GetKeyDown(KeyCode.D))
         {
-            is2D = !is2D;
+            isTargetting = !isTargetting;
             //return new TurnCommand();
         }
 
         // 총알 발사
         if (Input.GetKeyDown(KeyCode.F))
         {
+            int bulletIndex = 1;
+            // int bulletIndex = someBulletIndex;
+
             // 총알 데이터 로드
-            GameObject bulletPrefab = Resources.Load(dataManager.gameData.bullets[1].prefab) as GameObject;
-            int bulletSpeed = dataManager.gameData.bullets[1].speed;
+            GameObject bulletPrefab = Resources.Load(dataManager.gameData.bullets[bulletIndex].prefab) as GameObject;
+            int bulletSpeed = dataManager.gameData.bullets[bulletIndex].speed;
 
             // 총알 발사 위치, 회전값 설정
             Vector3 bulletPosition = gameObject.transform.position + new Vector3(0.0f, 0.0f, 2.0f);
@@ -72,19 +77,29 @@ public class PlayerController : MonoBehaviour
         if (Input.GetAxisRaw("Horizontal") != 0.0f || Input.GetAxisRaw("Vertical") != 0.0f)
         {
             Vector3 direction;
-            if (is2D)
+
+            direction = new Vector3(Input.GetAxisRaw("Horizontal"), 0.0f, Input.GetAxisRaw("Vertical"));
+
+            if (isTargetting)
             {
-                direction = new Vector3(Input.GetAxisRaw("Horizontal"), 0.0f, 0.0f);
-                gameObject.transform.LookAt(gameObject.transform.position + direction);
+                // 앞 바라보기
+                gameObject.transform.LookAt(gameObject.transform.position + new Vector3(0, 0, 1f));
             }
             else
             {
-                direction = new Vector3(Input.GetAxisRaw("Horizontal"), 0.0f, Input.GetAxisRaw("Vertical"));
-                gameObject.transform.LookAt(gameObject.transform.position + new Vector3(0, 0, direction.z));
+                // 이동하는 방향 바라보기
+                gameObject.transform.LookAt(gameObject.transform.position + direction);
             }
+
+            // 이동
             gameObject.transform.position += direction * playerSpeed * Time.deltaTime;
-                    //playerController.Move(new Vector3(Input.GetAxisRaw("Horizontal"), 0.0f, Input.GetAxisRaw("Vertical")));
-            }
+        }
+
+        // 스킬
+        if (Input.GetKeyDown(KeyCode.A))
+        {
+            // someCurrentSkill.Activate();
+        }
     }
 
     private void OnCollisionEnter(Collision collision)
@@ -95,6 +110,7 @@ public class PlayerController : MonoBehaviour
         }
     }
 
+    /*
     public void handleInput()
     {
         switch(player.stateAir)
@@ -111,4 +127,5 @@ public class PlayerController : MonoBehaviour
                 break;
         }
     }
+    */
 }
