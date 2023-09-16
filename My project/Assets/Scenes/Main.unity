@@ -38,7 +38,7 @@ RenderSettings:
   m_ReflectionIntensity: 1
   m_CustomReflection: {fileID: 0}
   m_Sun: {fileID: 705507994}
-  m_IndirectSpecularColor: {r: 0.18028378, g: 0.22571412, b: 0.30692285, a: 1}
+  m_IndirectSpecularColor: {r: 0.18028331, g: 0.2257133, b: 0.3069217, a: 1}
   m_UseRadianceAmbientProbe: 0
 --- !u!157 &3
 LightmapSettings:
@@ -378,7 +378,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: 69b43da4dd13ee845ad1ba7f67151156, type: 2}
+  - {fileID: 2100000, guid: 187bcd95c50c2d7458bc442cf4b318f6, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -454,7 +454,7 @@ MonoBehaviour:
   playerSpeed: 8
   jumpForce: 300
   isInAir: 0
-  is2D: 0
+  isTargetting: 0
   rd: {fileID: 0}
   coll: {fileID: 0}
   dataManager: {fileID: 0}
@@ -605,7 +605,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: 1b29615bc417b3645a6323496082a72d, type: 2}
+  - {fileID: 2100000, guid: 3ffe1c440383e6d459d23a82a44eaf84, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
