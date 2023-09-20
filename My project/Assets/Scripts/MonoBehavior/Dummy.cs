@@ -22,7 +22,7 @@ public class Dummy : MonoBehaviour
 
     private void OnTriggerEnter(Collider other)
     {
-        if (other.tag == "Ground") return;
+        if (other.tag != "Bullet") return;
         //hp -= 3;
         hp -= dMan.gameData.bullets[0].damage;
     }

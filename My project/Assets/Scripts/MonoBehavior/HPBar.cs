@@ -16,7 +16,7 @@ public class HPBar : MonoBehaviour
     {
         //Debug.Log(dummy.GetComponent<Dummy>().hp);
         //Debug.Log(dummy.GetComponent<Dummy>().hp / 20 * 12f);
-        // 하드코딩, 고칠 것
-        transform.localScale = new Vector3(dummy.GetComponent<Dummy>().hp / 20f * 12f, 1f, 1f);
+        // 하드코딩
+        transform.localScale = new Vector3(dummy.GetComponent<Dummy>().hp / 20f * 12f, 0.5f, 1f);
     }
 }
