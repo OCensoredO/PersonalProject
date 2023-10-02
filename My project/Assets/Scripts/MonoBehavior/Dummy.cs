@@ -8,6 +8,7 @@ public class Dummy : MonoBehaviour
 {
     public int hp = 20;
     public DataManager dMan;
+    public string state = "idle";
 
     private void Start()
     {
@@ -22,15 +23,37 @@ public class Dummy : MonoBehaviour
 
     private void OnTriggerEnter(Collider other)
     {
+        if (other.tag == "Player" && state == "idle") state = "melee";
+
         if (other.tag != "Bullet") return;
         //hp -= 3;
         hp -= dMan.gameData.bullets[0].damage;
+    }
+
+    private void OnTriggerExit(Collider other)
+    {
+        if (other.tag == "Player" && state == "idle") state = "remote";
     }
 
     IEnumerator UsePattern()
     {
         while (true)
         {
+            switch (state)
+            {
+                case "idle":
+
+                    break;
+                case "melee":
+                    break;
+                case "remote":
+                    break;
+                case "retreat":
+                    break;
+                default:
+                    break;
+            }
+            /*
             int patternNum = Random.Range(0, 3);
             switch (patternNum)
             {
@@ -46,6 +69,7 @@ public class Dummy : MonoBehaviour
                 default:
                     break;
             }
+            */
             yield return new WaitForSeconds(4.0f);
         }
     }
