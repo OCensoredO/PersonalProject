@@ -17,13 +17,34 @@ public class Dummy : MonoBehaviour
 
     public void Update()
     {
+        switch (state)
+        {
+            case "idle":
+                // 일정 시간 후 거리가 멀면 remote 상태로 전환
+                state = "remote";
+                break;
+            case "melee":
+                Debug.Log("근거리 패턴 사용");
+                state = "idle";
+                break;
+            case "remote":
+                Debug.Log("원거리 패턴 사용");
+                state = "idle";
+                break;
+            case "retreat":
+                break;
+            default:
+                break;
+        }
+
+        Debug.Log(state);
         if (hp < 0) SceneManager.LoadScene("Main");
         dMan = GameObject.FindGameObjectWithTag("GameManager").GetComponent<DataManager>();
     }
 
     private void OnTriggerEnter(Collider other)
     {
-        if (other.tag == "Player" && state == "idle") state = "melee";
+        //if (other.tag == "Player" && state == "idle") state = "melee";
 
         if (other.tag != "Bullet") return;
         //hp -= 3;
@@ -32,27 +53,34 @@ public class Dummy : MonoBehaviour
 
     private void OnTriggerExit(Collider other)
     {
-        if (other.tag == "Player" && state == "idle") state = "remote";
+        //if (other.tag == "Player" && state == "idle") state = "remote";
     }
 
     IEnumerator UsePattern()
     {
         while (true)
         {
+            /*
             switch (state)
             {
                 case "idle":
-
+                    // 일정 시간 후 거리가 멀면 remote 상태로 전환
+                    state = "remote";
                     break;
                 case "melee":
+                    Debug.Log("근거리 패턴 사용");
+                    state = "idle";
                     break;
                 case "remote":
+                    Debug.Log("원거리 패턴 사용");
+                    state = "idle";
                     break;
                 case "retreat":
                     break;
                 default:
                     break;
             }
+            */
             /*
             int patternNum = Random.Range(0, 3);
             switch (patternNum)
