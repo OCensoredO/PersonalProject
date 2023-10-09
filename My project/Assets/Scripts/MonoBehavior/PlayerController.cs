@@ -5,7 +5,7 @@ using UnityEngine;
 // 하드코딩
 public class PlayerController : MonoBehaviour
 {
-    public Player player;
+    //public Player player;
 
     public int playerSpeed = 8;
     //public int bulletSpeed = 1000;
@@ -19,6 +19,8 @@ public class PlayerController : MonoBehaviour
     public Collider coll;
     public DataManager dataManager;
 
+    private string state = "idle";
+
     private void Start()
     {
         rd = gameObject.GetComponent<Rigidbody>();
@@ -28,7 +30,6 @@ public class PlayerController : MonoBehaviour
         isTargetting = true;
     }
 
-    // 기능 구현에 우선 힘쓰고자 Update 함수 내에 구현
     private void Update()
     {
         // 점프
@@ -40,7 +41,6 @@ public class PlayerController : MonoBehaviour
             //return new JumpCommand(300, playerController.isInAir);
         }
 
-        // (구)2차원 이동/3차원 이동 전환
         // 조준 모드 전환
         if (Input.GetKeyDown(KeyCode.D))
         {
@@ -110,22 +110,16 @@ public class PlayerController : MonoBehaviour
         }
     }
 
-    /*
     public void handleInput()
     {
-        switch(player.stateAir)
+        switch(state)
         {
-            case StateAir.STATE_STANDING:
-                if (Input.GetKeyDown(KeyCode.Space))
-                {
-                    rd.AddForce(Vector3.up * player.jumpForce);
-                    player.stateAir = StateAir.STATE_JUMPING;
-                }
+            case "Idle":
                 break;
-            case StateAir.STATE_JUMPING:
-                // set player's stateAir to STATE_STANDING when landing on ground
+            case "Jump":
+                break;
+            default:
                 break;
         }
     }
-    */
 }
