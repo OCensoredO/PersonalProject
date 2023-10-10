@@ -2,7 +2,6 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-// 하드코딩
 public class PlayerController : MonoBehaviour
 {
     //public Player player;
@@ -32,6 +31,7 @@ public class PlayerController : MonoBehaviour
 
     private void Update()
     {
+
         // 점프
         if (Input.GetKeyDown(KeyCode.Space))
         {
@@ -112,6 +112,14 @@ public class PlayerController : MonoBehaviour
 
     public void handleInput()
     {
+        if (Input.GetKeyDown(KeyCode.Space))
+        {
+            if (isInAir) return;
+            rd.AddForce(Vector3.up * jumpForce);
+            isInAir = true;
+            //return new JumpCommand(300, playerController.isInAir);
+        }
+        /*
         switch(state)
         {
             case "Idle":
@@ -121,5 +129,6 @@ public class PlayerController : MonoBehaviour
             default:
                 break;
         }
+        */
     }
 }
