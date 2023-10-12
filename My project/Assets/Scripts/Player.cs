@@ -14,6 +14,7 @@ public enum StateDim
 }
 */
 
+/*
 public abstract class State
 {
     private bool targettingMode;
@@ -25,6 +26,13 @@ public abstract class State
         this.targettingMode = targettingMode;
         this.direction = direction;
         this.moveSpeed = moveSpeed;
+    }
+
+    public State(State state)
+    {
+        this.targettingMode = state.targettingMode;
+        this.direction = state.direction;
+        this.moveSpeed = state.moveSpeed;
     }
 
     public virtual void HandleInput()
@@ -77,6 +85,20 @@ public class JumpState : State
     }
 }
 
+public class AirState : State
+{
+
+    public AirState(bool targettingMode, Vector3 direction, int moveSpeed, int jumpForce)
+        : base(targettingMode, direction, moveSpeed) { }
+
+    public AirState(State state) : base(state) { }
+
+    public override void Execute(GameObject gameObject)
+    {
+        base.Execute(gameObject);
+    }
+}
+
 public class Player
 {
     public int playerSpeed { get; private set; }
@@ -110,8 +132,17 @@ public class Player
 
     public void Update()
     {
-        state = ManageInput();
-        if (state != null) state.Execute(gameObject);
+        switch(state)
+        {
+            case JumpState:
+                //state = new AirState();
+                break;
+            case AirState:
+                break;
+        }
+
+        //state = ManageInput();
+        //if (state != null) state.Execute(gameObject);
     }
 
     public State ManageInput()
@@ -119,3 +150,4 @@ public class Player
         return null;
     }
 }
+*/

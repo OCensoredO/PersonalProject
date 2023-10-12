@@ -2,6 +2,14 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
+/*
+public abstract class State
+{
+    public abstract void Execute();
+}
+*/
+
+/*
 public class PlayerController : MonoBehaviour
 {
     //public Player player;
@@ -119,16 +127,136 @@ public class PlayerController : MonoBehaviour
             isInAir = true;
             //return new JumpCommand(300, playerController.isInAir);
         }
-        /*
-        switch(state)
+        
+        //switch(state)
+        //{
+        //    case "Idle":
+        //        break;
+        //    case "Jump":
+        //        break;
+        //    default:
+        //        break;
+        //}
+        
+    }
+}
+*/
+
+/*
+public enum PlayerState
+{
+    Idle,
+    Running,
+    Jumping
+}
+*/
+
+public abstract class PlayerState
+{
+
+    public abstract void Execute();
+}
+
+public class IdlePlayerState : PlayerState
+{
+    public override void Execute()
+    {
+        throw new System.NotImplementedException();
+    }
+}
+
+public class JumpPlayerState : PlayerState
+{
+    public override void Execute()
+    {
+        throw new System.NotImplementedException();
+    }
+}
+
+public class MovePlayerState : PlayerState
+{
+    public override void Execute()
+    {
+        throw new System.NotImplementedException();
+    }
+}
+
+public class PlayerController : MonoBehaviour
+{
+    //private string currentState;
+    private PlayerState state;
+    private static IdlePlayerState stateIdle;
+    private static JumpPlayerState stateJump;
+
+    private void Start()
+    {
+        state = stateIdle;
+        //currentState = PlayerState.Idle;
+    }
+
+    private void Update()
+    {
+        state = HandleInput();
+        state.Execute();
+    }
+
+    PlayerState HandleInput()
+    {
+        if (Input.GetKeyDown(KeyCode.Space))
         {
-            case "Idle":
+            // Player initiates a jump
+            //currentState = PlayerState.Jumping;
+            return stateJump;
+        }
+        else if (Input.GetKey(KeyCode.RightArrow))
+        {
+            // Player is running to the right
+            //currentState = PlayerState.Running;
+        }
+        else
+        {
+            // Player is idle
+            //currentState = PlayerState.Idle;
+        }
+        return null;
+    }
+
+    /*
+    // Update the player state
+    void UpdateState()
+    {
+        // Perform actions based on the current state
+        switch (currentState)
+        {
+            case PlayerState.Idle:
+                IdleState();
                 break;
-            case "Jump":
+            case PlayerState.Running:
+                RunningState();
                 break;
-            default:
+            case PlayerState.Jumping:
+                JumpingState();
                 break;
         }
-        */
+    }
+    */
+
+    // State-specific methods
+    void IdleState()
+    {
+        Debug.Log("Player is idle");
+        // Implement idle state behavior
+    }
+
+    void RunningState()
+    {
+        Debug.Log("Player is running");
+        // Implement running state behavior
+    }
+
+    void JumpingState()
+    {
+        Debug.Log("Player is jumping");
+        // Implement jumping state behavior
     }
 }
