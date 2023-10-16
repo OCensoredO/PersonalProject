@@ -153,31 +153,105 @@ public enum PlayerState
 
 public abstract class PlayerState
 {
+    public PlayerController playerController;
+
+    public PlayerState(PlayerController playerController) { this.playerController = playerController; }
 
     public abstract void Execute();
+
+    public abstract void OnMessaged(string msg);
 }
 
 public class IdlePlayerState : PlayerState
 {
+    public IdlePlayerState(PlayerController playerController) : base(playerController) { }
+
     public override void Execute()
     {
-        throw new System.NotImplementedException();
+        Debug.Log("가만히...");
+        //throw new System.NotImplementedException();
+    }
+
+    public override void OnMessaged(string msg)
+    {
+        switch(msg)
+        {
+            case "Jump":
+                playerController.SetState("Jump");
+                break;
+            case "Move":
+                playerController.SetState("Move");
+                break;
+            default:
+                Debug.Log("Unknown Msg: " + msg);
+                break;
+        }
     }
 }
 
 public class JumpPlayerState : PlayerState
 {
+    public JumpPlayerState(PlayerController playerController) : base(playerController) { }
+
     public override void Execute()
     {
-        throw new System.NotImplementedException();
+        Debug.Log("점프");
+    }
+
+    public override void OnMessaged(string msg)
+    {
+        switch (msg)
+        {
+            case "Land":
+                playerController.SetState("Idle");
+                break;
+            default:
+                Debug.Log("Unknown Msg: " + msg);
+                break;
+        }
     }
 }
 
 public class MovePlayerState : PlayerState
 {
+    public MovePlayerState(PlayerController playerController) : base(playerController) { }
+
     public override void Execute()
     {
-        throw new System.NotImplementedException();
+        Debug.Log("이동");
+    }
+
+    public override void OnMessaged(string msg)
+    {
+        switch(msg)
+        {
+            case "Stop":
+                playerController.SetState("Idle");
+                break;
+            case "Jump":
+                playerController.SetState("Jump");
+                break;
+            default:
+                Debug.Log("Unknown Msg: " + msg);
+                break;
+        }
+    }
+}
+
+public class ShootPlayerState : PlayerState
+{
+    public ShootPlayerState(PlayerController playerController) : base(playerController) { }
+
+    public override void Execute()
+    {
+        Debug.Log("발사");
+        playerController.SetState("Idle");
+    }
+
+    public override void OnMessaged(string msg)
+    {
+        Debug.Log("Unknown Msg: " + msg);
+        return;
     }
 }
 
@@ -187,76 +261,72 @@ public class PlayerController : MonoBehaviour
     private PlayerState state;
     private static IdlePlayerState stateIdle;
     private static JumpPlayerState stateJump;
+    private static MovePlayerState stateMove;
+    private static ShootPlayerState stateShoot;
 
     private void Start()
     {
+        stateIdle = new IdlePlayerState(this);
+        stateJump = new JumpPlayerState(this);
+        stateMove = new MovePlayerState(this);
+        stateShoot = new ShootPlayerState(this);
+
         state = stateIdle;
         //currentState = PlayerState.Idle;
     }
 
     private void Update()
     {
-        state = HandleInput();
+        HandleInput();
+        //state = HandleInput();
         state.Execute();
     }
 
-    PlayerState HandleInput()
+    public void SetState(string stateName)
+    {
+        switch (stateName)
+        {
+            case "Idle":
+                state = stateIdle;
+                break;
+            case "Jump":
+                state = stateJump;
+                break;
+            case "Move":
+                state = stateMove;
+                break;
+            case "Shoot":
+                state = stateShoot;
+                break;
+            default:
+                Debug.LogError("Unknown state");
+                break;
+        }
+    }
+
+    private void HandleInput()
     {
         if (Input.GetKeyDown(KeyCode.Space))
         {
-            // Player initiates a jump
-            //currentState = PlayerState.Jumping;
-            return stateJump;
+            state.OnMessaged("Jump");
+            return;
         }
-        else if (Input.GetKey(KeyCode.RightArrow))
+
+        if (Input.GetKey(KeyCode.RightArrow))
         {
-            // Player is running to the right
-            //currentState = PlayerState.Running;
+            state.OnMessaged("Move");
+            return;
         }
-        else
+
+        if (Input.GetKeyUp(KeyCode.RightArrow))
         {
-            // Player is idle
-            //currentState = PlayerState.Idle;
+            state.OnMessaged("Stop");
+            return;
         }
-        return null;
-    }
 
-    /*
-    // Update the player state
-    void UpdateState()
-    {
-        // Perform actions based on the current state
-        switch (currentState)
+        if (Input.GetKeyDown(KeyCode.F))
         {
-            case PlayerState.Idle:
-                IdleState();
-                break;
-            case PlayerState.Running:
-                RunningState();
-                break;
-            case PlayerState.Jumping:
-                JumpingState();
-                break;
+            state.OnMessaged("Shoot");
         }
-    }
-    */
-
-    // State-specific methods
-    void IdleState()
-    {
-        Debug.Log("Player is idle");
-        // Implement idle state behavior
-    }
-
-    void RunningState()
-    {
-        Debug.Log("Player is running");
-        // Implement running state behavior
-    }
-
-    void JumpingState()
-    {
-        Debug.Log("Player is jumping");
-        // Implement jumping state behavior
     }
 }
