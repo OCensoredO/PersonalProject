@@ -141,15 +141,18 @@ public class PlayerController : MonoBehaviour
     }
 }
 */
-
-/*
-public enum PlayerState
+public enum PState
 {
     Idle,
-    Running,
-    Jumping
+    Move,
+    Jump,
+    Shoot
 }
-*/
+
+public enum Msg
+{
+    Land
+}
 
 public abstract class PlayerState
 {
@@ -157,23 +160,54 @@ public abstract class PlayerState
 
     public PlayerState(PlayerController playerController) { this.playerController = playerController; }
 
-    public abstract void Execute();
+    public virtual void HandleInput()
+    {
+        // 조준 모드 전환
+        if (Input.GetKeyDown(KeyCode.D))
+            playerController.ToggleTargettingMode();
+    }
 
-    public abstract void OnMessaged(string msg);
+    public virtual void Enter() { return; }
+    public virtual void Execute() { return; }
+    public virtual void Exit() { return; }
+    public virtual void OnMessaged(Msg msg) { return; }
 }
 
 public class IdlePlayerState : PlayerState
 {
     public IdlePlayerState(PlayerController playerController) : base(playerController) { }
 
+    public override void HandleInput()
+    {
+        base.HandleInput();
+
+        if (Input.GetAxisRaw("Horizontal") != 0.0f || Input.GetAxisRaw("Vertical") != 0.0f)
+        {
+            playerController.SetState(PState.Move);
+            return;
+        }
+        if (Input.GetKeyDown(KeyCode.Space))
+        {
+            playerController.SetState(PState.Jump);
+            return;
+        }
+        if (Input.GetKeyDown(KeyCode.F))
+        {
+            playerController.SetState(PState.Shoot);
+        }
+    }
+    /*
     public override void Execute()
     {
         Debug.Log("가만히...");
         //throw new System.NotImplementedException();
     }
+    */
 
+    /*
     public override void OnMessaged(string msg)
     {
+        return;
         switch(msg)
         {
             case "Jump":
@@ -187,29 +221,7 @@ public class IdlePlayerState : PlayerState
                 break;
         }
     }
-}
-
-public class JumpPlayerState : PlayerState
-{
-    public JumpPlayerState(PlayerController playerController) : base(playerController) { }
-
-    public override void Execute()
-    {
-        Debug.Log("점프");
-    }
-
-    public override void OnMessaged(string msg)
-    {
-        switch (msg)
-        {
-            case "Land":
-                playerController.SetState("Idle");
-                break;
-            default:
-                Debug.Log("Unknown Msg: " + msg);
-                break;
-        }
-    }
+    */
 }
 
 public class MovePlayerState : PlayerState
@@ -218,12 +230,29 @@ public class MovePlayerState : PlayerState
 
     public override void Execute()
     {
-        Debug.Log("이동");
+        playerController.Move();
     }
 
+    public override void HandleInput()
+    {
+        base.HandleInput();
+
+        if (Input.GetKeyDown(KeyCode.Space))
+        {
+            playerController.SetState(PState.Jump);
+            return;
+        }
+        if (Input.GetAxisRaw("Horizontal") == 0.0f && Input.GetAxisRaw("Vertical") == 0.0f)
+        {
+            playerController.SetState(PState.Idle);
+            return;
+        }
+    }
+
+    /*
     public override void OnMessaged(string msg)
     {
-        switch(msg)
+        switch (msg)
         {
             case "Stop":
                 playerController.SetState("Idle");
@@ -236,8 +265,40 @@ public class MovePlayerState : PlayerState
                 break;
         }
     }
+    */
 }
 
+public class JumpPlayerState : PlayerState
+{
+    //private const int jumpDuration = 5;
+    //private int jumpTimer = 0;
+
+    public JumpPlayerState(PlayerController playerController) : base(playerController) { }
+
+    public override void Enter()
+    {
+        playerController.Jump();
+    }
+
+    public override void Execute()
+    {
+        // 공중에서도 앞뒤좌우 이동 가능하게끔 Move() 호출
+        //Debug.Log("점프");
+        playerController.Move();
+    }
+
+    public override void OnMessaged(Msg msg)
+    {
+        switch (msg)
+        {
+            case Msg.Land:
+                playerController.SetState(PState.Idle);
+                break;
+        }
+    }
+}
+
+/*
 public class ShootPlayerState : PlayerState
 {
     public ShootPlayerState(PlayerController playerController) : base(playerController) { }
@@ -254,34 +315,69 @@ public class ShootPlayerState : PlayerState
         return;
     }
 }
+*/
 
 public class PlayerController : MonoBehaviour
 {
-    //private string currentState;
-    private PlayerState state;
+    private PlayerState currState;
     private static IdlePlayerState stateIdle;
-    private static JumpPlayerState stateJump;
+    //private static AirPlayerState stateAir;
     private static MovePlayerState stateMove;
-    private static ShootPlayerState stateShoot;
+    private static JumpPlayerState stateJump;
+    //private static ShootPlayerState stateShoot;
+    public Rigidbody rd;
+
+    private const int playerSpeed = 8;
+    //public int bulletSpeed = 1000;
+    private const int jumpForce = 300;
+
+    private bool isTargetting;
 
     private void Start()
     {
-        stateIdle = new IdlePlayerState(this);
-        stateJump = new JumpPlayerState(this);
-        stateMove = new MovePlayerState(this);
-        stateShoot = new ShootPlayerState(this);
+        isTargetting = true;
 
-        state = stateIdle;
+        stateIdle = new IdlePlayerState(this);
+        stateMove = new MovePlayerState(this);
+        stateJump = new JumpPlayerState(this);
+        //stateShoot = new ShootPlayerState(this);
+        rd = GetComponent<Rigidbody>();
+
+        currState = stateIdle;
         //currentState = PlayerState.Idle;
     }
 
     private void Update()
     {
-        HandleInput();
+        //HandleInput();
         //state = HandleInput();
-        state.Execute();
+        currState.HandleInput();
+        currState.Execute();
     }
 
+    public void SetState(PState state)
+    {
+        switch(state)
+        {
+            case PState.Idle:
+                currState = stateIdle;
+                break;
+            case PState.Move:
+                currState = stateMove;
+                break;
+            case PState.Jump:
+                currState = stateJump;
+                break;
+            case PState.Shoot:
+                //currState = stateShoot;
+                break;
+            default:
+                break;
+        }
+        currState.Enter();
+    }
+
+    /*
     public void SetState(string stateName)
     {
         switch (stateName)
@@ -291,6 +387,9 @@ public class PlayerController : MonoBehaviour
                 break;
             case "Jump":
                 state = stateJump;
+                break;
+            case "Air":
+                state = stateAir;
                 break;
             case "Move":
                 state = stateMove;
@@ -303,7 +402,9 @@ public class PlayerController : MonoBehaviour
                 break;
         }
     }
+    */
 
+    /*
     private void HandleInput()
     {
         if (Input.GetKeyDown(KeyCode.Space))
@@ -328,5 +429,40 @@ public class PlayerController : MonoBehaviour
         {
             state.OnMessaged("Shoot");
         }
+    }
+    */
+
+    public void Move()
+    {
+        Vector3 direction;
+
+        direction = new Vector3(Input.GetAxisRaw("Horizontal"), 0.0f, Input.GetAxisRaw("Vertical"));
+
+        if (isTargetting)
+        {
+            // 앞 바라보기
+            gameObject.transform.LookAt(gameObject.transform.position + new Vector3(0, 0, 1f));
+        }
+        else
+        {
+            // 이동하는 방향 바라보기
+            gameObject.transform.LookAt(gameObject.transform.position + direction);
+        }
+
+        // 이동
+        gameObject.transform.position += direction * playerSpeed * Time.deltaTime;
+    }
+
+    public void Jump()
+    {
+        rd.AddForce(jumpForce * Vector3.up);
+    }
+
+    public void ToggleTargettingMode() { isTargetting = !isTargetting; }
+
+    private void OnCollisionEnter(Collision collision)
+    {
+        if (collision.gameObject.CompareTag("Ground"))
+            currState.OnMessaged(Msg.Land);
     }
 }
