@@ -19,7 +19,7 @@ public class Dummy : MonoBehaviour
 
     private void Start()
     {
-        bossStatesStack.Push(stateIdle);
+        //bossStatesStack.Push(stateIdle);
         //state = stateIdle;
         //nextStateName = "Idle";
         StartCoroutine(UsePattern());

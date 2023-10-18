@@ -165,6 +165,10 @@ public abstract class PlayerState
         // 조준 모드 전환
         if (Input.GetKeyDown(KeyCode.D))
             playerController.ToggleTargettingMode();
+
+        // 총알 발사
+        if (Input.GetKeyDown(KeyCode.F))
+            playerController.SetState(PState.Shoot);
     }
 
     public virtual void Enter() { return; }
@@ -292,44 +296,47 @@ public class JumpPlayerState : PlayerState
         switch (msg)
         {
             case Msg.Land:
+                // 착지 시 앞뒤좌우 이동 중이었을 경우
+                if (Input.GetAxisRaw("Horizontal") != 0.0f && Input.GetAxisRaw("Vertical") != 0.0f)
+                {
+                    playerController.SetState(PState.Move);
+                    break;
+                }
+                // 앞뒤좌우 이동 중이지 않았을 경우
                 playerController.SetState(PState.Idle);
                 break;
         }
     }
 }
 
-/*
 public class ShootPlayerState : PlayerState
 {
     public ShootPlayerState(PlayerController playerController) : base(playerController) { }
 
-    public override void Execute()
+    public override void Enter()
     {
-        Debug.Log("발사");
-        playerController.SetState("Idle");
-    }
-
-    public override void OnMessaged(string msg)
-    {
-        Debug.Log("Unknown Msg: " + msg);
-        return;
+        base.Enter();
+        playerController.Shoot();
+        playerController.ReturnToPrevState();
     }
 }
-*/
+
 
 public class PlayerController : MonoBehaviour
 {
+    private const int playerSpeed = 8;
+    private const int jumpForce = 300;
+
+    public PlayerState prevState { get; private set; }
     private PlayerState currState;
+
     private static IdlePlayerState stateIdle;
-    //private static AirPlayerState stateAir;
     private static MovePlayerState stateMove;
     private static JumpPlayerState stateJump;
-    //private static ShootPlayerState stateShoot;
-    public Rigidbody rd;
+    private static ShootPlayerState stateShoot;
 
-    private const int playerSpeed = 8;
-    //public int bulletSpeed = 1000;
-    private const int jumpForce = 300;
+    private DataManager dataManager;
+    private Rigidbody rd;
 
     private bool isTargetting;
 
@@ -340,11 +347,12 @@ public class PlayerController : MonoBehaviour
         stateIdle = new IdlePlayerState(this);
         stateMove = new MovePlayerState(this);
         stateJump = new JumpPlayerState(this);
-        //stateShoot = new ShootPlayerState(this);
+        stateShoot = new ShootPlayerState(this);
+
         rd = GetComponent<Rigidbody>();
+        dataManager = GameObject.FindGameObjectWithTag("GameManager").GetComponent<DataManager>();
 
         currState = stateIdle;
-        //currentState = PlayerState.Idle;
     }
 
     private void Update()
@@ -353,10 +361,13 @@ public class PlayerController : MonoBehaviour
         //state = HandleInput();
         currState.HandleInput();
         currState.Execute();
+        Debug.Log(currState.GetType().Name);
     }
 
     public void SetState(PState state)
     {
+        prevState = currState;
+
         switch(state)
         {
             case PState.Idle:
@@ -369,7 +380,7 @@ public class PlayerController : MonoBehaviour
                 currState = stateJump;
                 break;
             case PState.Shoot:
-                //currState = stateShoot;
+                currState = stateShoot;
                 break;
             default:
                 break;
@@ -458,7 +469,32 @@ public class PlayerController : MonoBehaviour
         rd.AddForce(jumpForce * Vector3.up);
     }
 
+    public void Shoot()
+    {
+        int bulletIndex = 1;
+        // int bulletIndex = someBulletIndex;
+
+        // 총알 데이터 로드
+        GameObject bulletPrefab = Resources.Load(dataManager.gameData.bullets[bulletIndex].prefab) as GameObject;
+        int bulletSpeed = dataManager.gameData.bullets[bulletIndex].speed;
+
+        // 총알 발사 위치, 회전값 설정
+        Vector3 bulletPosition = gameObject.transform.position + new Vector3(0.0f, 0.0f, 2.0f);
+        Quaternion bulletRotation = gameObject.transform.rotation;
+
+        // 총알 instantiate
+        GameObject bullet = Instantiate(bulletPrefab, bulletPosition, bulletRotation);
+
+        // 총알 날리기
+        bullet.GetComponent<Rigidbody>().AddForce(gameObject.transform.forward * bulletSpeed);
+
+        // 일정 시간 후 파괴
+        Destroy(bullet, 2.0f);
+    }
+
     public void ToggleTargettingMode() { isTargetting = !isTargetting; }
+
+    public void ReturnToPrevState() { currState = prevState; }
 
     private void OnCollisionEnter(Collision collision)
     {
