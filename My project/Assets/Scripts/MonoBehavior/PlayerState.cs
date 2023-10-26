@@ -67,6 +67,7 @@ public class IdlePlayerState : PlayerState
         //PlayerState nextState;
 
         //nextState = base.HandleInput();
+        base.HandleInput();
 
         if (Input.GetAxisRaw("Horizontal") != 0.0f || Input.GetAxisRaw("Vertical") != 0.0f)
         {
@@ -106,6 +107,7 @@ public class MovePlayerState : PlayerState
         //PlayerState nextState;
 
         //nextState = base.HandleInput();
+        base.HandleInput();
 
         if (Input.GetKeyDown(KeyCode.Space))
         {
@@ -135,7 +137,7 @@ public class JumpPlayerState : PlayerTransientState
     public override void Enter()
     {
         playerController.Jump();
-        Execute();
+        //Execute();
     }
 
     public override void Execute()
@@ -163,7 +165,7 @@ public class JumpPlayerState : PlayerTransientState
     }
 }
 
-// 트랜지언트 스테이트 적용 예정, 현재는 이전 상태로 돌아가는 과정이 원활하지 않아 일부 경우에 오류 발생
+// 트랜지언트 스테이트 적용 예정
 public class ShootPlayerState : PlayerState
 {
     public ShootPlayerState(PlayerController playerController) : base(playerController) { }

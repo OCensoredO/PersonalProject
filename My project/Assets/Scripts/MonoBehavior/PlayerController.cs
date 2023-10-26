@@ -178,11 +178,16 @@ public class PlayerController : MonoBehaviour
 
     private void Update()
     {
-        if (currState.HandleInput()) return;
-        
+        if (currState.HandleInput())
+        {
+            Debug.Log("ÀüÀÌ");
+            return;
+        }
+
         //state = HandleInput();
         //currState.HandleInput();
         currState.Execute();
+        Debug.Log(currState.GetType().Name);
     }
 
     public void SetState(PState state)
