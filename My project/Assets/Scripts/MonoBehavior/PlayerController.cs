@@ -178,13 +178,11 @@ public class PlayerController : MonoBehaviour
 
     private void Update()
     {
-        nextState = currState.HandleInput();
+        if (currState.HandleInput()) return;
         
-        //HandleInput();
         //state = HandleInput();
         //currState.HandleInput();
         currState.Execute();
-        //Debug.Log(currState.GetType().Name);
     }
 
     public void SetState(PState state)
@@ -214,6 +212,14 @@ public class PlayerController : MonoBehaviour
 
     public void Move()
     {
+        Vector3 direction = setDirection();
+
+        // 이동
+        gameObject.transform.position += direction * playerSpeed * Time.deltaTime;
+    }
+
+    private Vector3 setDirection()
+    {
         Vector3 direction;
 
         direction = new Vector3(Input.GetAxisRaw("Horizontal"), 0.0f, Input.GetAxisRaw("Vertical"));
@@ -229,8 +235,7 @@ public class PlayerController : MonoBehaviour
             gameObject.transform.LookAt(gameObject.transform.position + direction);
         }
 
-        // 이동
-        gameObject.transform.position += direction * playerSpeed * Time.deltaTime;
+        return direction;
     }
 
     public void Jump()

@@ -17,11 +17,11 @@ public enum Msg
 
 public abstract class PlayerState
 {
-    public PlayerController playerController;
+    protected PlayerController playerController;
 
     public PlayerState(PlayerController playerController) { this.playerController = playerController; }
 
-    public virtual PlayerState HandleInput()
+    public virtual bool HandleInput()
     {
         // 조준 모드 전환
         if (Input.GetKeyDown(KeyCode.D))
@@ -29,10 +29,15 @@ public abstract class PlayerState
 
         // 총알 발사
         if (Input.GetKeyDown(KeyCode.F))
-            return new ShootPlayerState(playerController);
-        //playerController.SetState(PState.Shoot);
+        {
+            playerController.SetState(PState.Shoot);
+            return true;
+        }
 
-        return null;
+        return false;
+        //return new ShootPlayerState(playerController);
+
+        //return null;
     }
 
     public virtual void Enter() { return; }
@@ -42,6 +47,7 @@ public abstract class PlayerState
 }
 
 // 들어온 후 일정 시간 뒤 이전 상태로 돌아가는 상태
+// 아직 미적용
 public abstract class PlayerTransientState : PlayerState
 {
     protected PlayerState prevState;
@@ -56,29 +62,33 @@ public class IdlePlayerState : PlayerState
 {
     public IdlePlayerState(PlayerController playerController) : base(playerController) { }
 
-    public override PlayerState HandleInput()
+    public override bool HandleInput()
     {
-        PlayerState nextState;
+        //PlayerState nextState;
 
-        nextState = base.HandleInput();
+        //nextState = base.HandleInput();
 
         if (Input.GetAxisRaw("Horizontal") != 0.0f || Input.GetAxisRaw("Vertical") != 0.0f)
         {
-            //playerController.SetState(PState.Move);
-            nextState = new MovePlayerState(playerController);
+            playerController.SetState(PState.Move);
+            //nextState = new MovePlayerState(playerController);
+            return true;
         }
         if (Input.GetKeyDown(KeyCode.Space))
         {
-            //playerController.SetState(PState.Jump);
-            nextState = new JumpPlayerState(playerController);
+            playerController.SetState(PState.Jump);
+            //nextState = new JumpPlayerState(playerController);
+            return true;
         }
         if (Input.GetKeyDown(KeyCode.F))
         {
-            //playerController.SetState(PState.Shoot);
-            nextState = new ShootPlayerState(playerController);
+            playerController.SetState(PState.Shoot);
+            //nextState = new ShootPlayerState(playerController);
+            return true;
         }
 
-        return nextState;
+        return false;
+        //return nextState;
     }
 }
 
@@ -91,24 +101,27 @@ public class MovePlayerState : PlayerState
         playerController.Move();
     }
 
-    public override PlayerState HandleInput()
+    public override bool HandleInput()
     {
-        PlayerState nextState;
+        //PlayerState nextState;
 
-        nextState = base.HandleInput();
+        //nextState = base.HandleInput();
 
         if (Input.GetKeyDown(KeyCode.Space))
         {
-            //playerController.SetState(PState.Jump);
-            nextState = new JumpPlayerState(playerController);
+            playerController.SetState(PState.Jump);
+            return true;
+            //nextState = new JumpPlayerState(playerController);
         }
         if (Input.GetAxisRaw("Horizontal") == 0.0f && Input.GetAxisRaw("Vertical") == 0.0f)
         {
-            //playerController.SetState(PState.Idle);
-            nextState = new IdlePlayerState(playerController);
+            playerController.SetState(PState.Idle);
+            return true;
+            //nextState = new IdlePlayerState(playerController);
         }
 
-        return nextState;
+        return false;
+        //return nextState;
     }
 }
 
@@ -117,8 +130,8 @@ public class JumpPlayerState : PlayerTransientState
     public JumpPlayerState(PlayerController playerController) : base(playerController) { }
 
 
-    // 이 부분 PlayerState 리턴하게 수정 필요
-    /*
+    // 미완성, 동작은 하나 수정 필요
+    
     public override void Enter()
     {
         playerController.Jump();
@@ -130,7 +143,7 @@ public class JumpPlayerState : PlayerTransientState
         // 공중에서도 앞뒤좌우 이동 가능하게끔 Move() 호출
         playerController.Move();
     }
-    */
+    
 
     public override void OnMessaged(Msg msg)
     {
@@ -150,6 +163,7 @@ public class JumpPlayerState : PlayerTransientState
     }
 }
 
+// 트랜지언트 스테이트 적용 예정, 현재는 이전 상태로 돌아가는 과정이 원활하지 않아 일부 경우에 오류 발생
 public class ShootPlayerState : PlayerState
 {
     public ShootPlayerState(PlayerController playerController) : base(playerController) { }
