@@ -4,7 +4,7 @@ using UnityEngine;
 using UnityEngine.SceneManagement;
 
 // 하드코딩
-public class Dummy : MonoBehaviour
+public class Boss : MonoBehaviour
 {
     public int hp = 20;
     public DataManager dMan;
@@ -27,7 +27,7 @@ public class Dummy : MonoBehaviour
 
     public void Update()
     {
-        
+
         if (hp < 0) SceneManager.LoadScene("Main");
         dMan = GameObject.FindGameObjectWithTag("GameManager").GetComponent<DataManager>();
     }
@@ -62,7 +62,7 @@ public class Dummy : MonoBehaviour
             // 게임 시작 시에는 Idle로 시작, 전이 X
             //if (ChangeState())  state.Enter();
             //state.Execute();
-            
+
             yield return new WaitForSeconds(4.0f);
         }
 
