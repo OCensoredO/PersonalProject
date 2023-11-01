@@ -30,9 +30,8 @@ public abstract class BossState
     public virtual BossState HandleInput()
     {
         // 일단은 핸들인풋에 넣긴 했는데 뭔가 부자연스러움, 더 고려해보기
-        if (boss.hp <= 0) return new BossDieState(boss, prevState);
-
-        if (boss.hp < 5) return new BossRetreatState(boss, prevState);
+        //if (boss.hp <= 0) return new BossDieState(boss, prevState);
+        //if (boss.hp < 5) return new BossRetreatState(boss, prevState);
 
         // 상태 전이가 일어나지 않음
         return null;
@@ -46,7 +45,10 @@ public abstract class BossState
     }
 
     public virtual void Exit() { return; }
-    public virtual void OnMessaged(BMsg msg) { return; }
+    public virtual void OnMessaged(BMsg msg)
+    {
+
+    }
 }
 
 public class BossDieState : BossState

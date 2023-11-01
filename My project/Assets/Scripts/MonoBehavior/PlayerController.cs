@@ -152,9 +152,9 @@ public class PlayerController : MonoBehaviour
     private PlayerState nextState;
 
     private static IdlePlayerState stateIdle;
-    private static MovePlayerState stateMove;
-    private static JumpPlayerState stateJump;
-    private static ShootPlayerState stateShoot;
+    private static MovingPlayerState stateMove;
+    private static JumpingPlayerState stateJump;
+    private static ShootingPlayerState stateShoot;
 
     private DataManager dataManager;
     private Rigidbody rd;
@@ -166,9 +166,10 @@ public class PlayerController : MonoBehaviour
         isTargetting = true;
 
         stateIdle = new IdlePlayerState(this);
-        stateMove = new MovePlayerState(this);
-        stateJump = new JumpPlayerState(this);
-        stateShoot = new ShootPlayerState(this);
+        stateMove = new MovingPlayerState(this);
+        // 여기 밑에 이거 몬가... 몬가 이상함
+        stateJump = new JumpingPlayerState(this, null);
+        stateShoot = new ShootingPlayerState(this);
 
         rd = GetComponent<Rigidbody>();
         dataManager = GameObject.FindGameObjectWithTag("GameManager").GetComponent<DataManager>();
@@ -178,15 +179,19 @@ public class PlayerController : MonoBehaviour
 
     private void Update()
     {
+        /*
         if (currState.HandleInput())
         {
             Debug.Log("전이");
             return;
         }
+        */
+
+        // if(메시지있) state = currState.OnMessaged(맛사지)
 
         //state = HandleInput();
         //currState.HandleInput();
-        currState.Execute();
+        //currState.Execute();
         Debug.Log(currState.GetType().Name);
     }
 
@@ -213,6 +218,11 @@ public class PlayerController : MonoBehaviour
                 break;
         }
         currState.Enter();
+    }
+
+    private void setState()
+    {
+        
     }
 
     public void Move()
@@ -278,6 +288,6 @@ public class PlayerController : MonoBehaviour
     private void OnCollisionEnter(Collision collision)
     {
         if (collision.gameObject.CompareTag("Ground"))
-            currState.OnMessaged(Msg.Land);
+            currState.OnMessaged(PMsg.Land);
     }
 }
