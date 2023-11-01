@@ -18,7 +18,11 @@ public class FSM<T> where T : unmanaged
     private State<T> currState;
     private State<T> nextState;
 
-    public void Start(State<T> currState) { this.currState = currState; }
+    public void Start(State<T> currState)
+    {
+        this.currState = currState;
+        currState.Enter();
+    }
 
     public void ManageState(State<T> state = null)
     {

@@ -6,15 +6,21 @@ using UnityEngine.SceneManagement;
 // 하드코딩
 public class Boss : MonoBehaviour
 {
-    public int hp = 20;
+    public int hp { get; private set; }
     private DataManager dMan;
+
+    Renderer renderer;
 
     private FSM<BMsg> bossFSM;
 
+    // hp값은 임시로 지정한 값
     private void Start()
     {
-        //StartCoroutine(UsePattern());
+        hp = 20;
         dMan = GameObject.FindGameObjectWithTag("GameManager").GetComponent<DataManager>();
+
+        // 시연용 기능인 SetColor()를 위해 임시로 선언한 변수
+        renderer = GetComponent<Renderer>();
 
         bossFSM = new FSM<BMsg>();
         bossFSM.Start(new IdleBossState(this));
@@ -22,35 +28,56 @@ public class Boss : MonoBehaviour
 
     public void Update()
     {
+        bossFSM.ManageState();
+        //bossFSM.PrintLog();
+
+        if (hp > 12)
+        {
+            bossFSM.SendMessage(BMsg.EnoughHP);
+            return;
+        }
         if (hp <= 0)
+        {
             bossFSM.SendMessage(BMsg.Die);
-        else if (hp < 5)
+            return;
+        }
+        if (hp < 8)
+        {
             bossFSM.SendMessage(BMsg.LowHP);
-        
-        //if (hp < 0) SceneManager.LoadScene("Main");
+        }
     }
 
     public void SendMessageToFSM(BMsg msg)
     {
         bossFSM.SendMessage(msg);
-        Debug.Log(msg + " 보내짐");
     }
 
     private void OnTriggerEnter(Collider other)
     {
-        //if (other.tag == "Player" && state == "idle") state = "melee";
-
         if (other.tag != "Bullet") return;
         // 인덱스값은 임시로 0으로 둠
         hp -= dMan.gameData.bullets[0].damage;
     }
 
-    private void OnTriggerExit(Collider other)
+    public void Heal()
     {
-        //if (other.tag == "Player" && state == "idle") state = "remote";
+        hp++;
+        Debug.Log("힐");
     }
 
+    // 시연을 위해 임시로 기능 구현
+    public void Restart()
+    {
+        SceneManager.LoadScene("Main");
+    }
 
+    // 시연용 임시 기능
+    public void SetColor(Color color)
+    {
+        renderer.material.color = color;
+    }
+
+    /*
     IEnumerator UsePattern()
     {
         while (true)
@@ -64,7 +91,7 @@ public class Boss : MonoBehaviour
         }
 
     }
-
+    */
 }
 /*
             switch (state)

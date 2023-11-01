@@ -8,7 +8,7 @@ public class DistanceCheckingBox : MonoBehaviour
 
     private void Start()
     {
-        bossObj = transform.parent.gameObject;
+        bossObj = GameObject.FindGameObjectWithTag("Boss");
     }
 
     private void OnTriggerEnter(Collider other)

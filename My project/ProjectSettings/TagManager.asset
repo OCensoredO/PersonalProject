@@ -9,6 +9,8 @@ TagManager:
   - Bullet
   - Boss
   - MeleeBox
+  - BewareBox
+  - MonitorBox
   layers:
   - Default
   - TransparentFX

@@ -39,7 +39,6 @@ public abstract class BossState : State<BMsg>
 
     public virtual State<BMsg> HandleInput()
     {
-
         // 상태 전이가 일어나지 않음
         return null;
     }
@@ -54,18 +53,52 @@ public abstract class BossState : State<BMsg>
         switch(msg)
         {
             case BMsg.LowHP:
-                return new RetreatingBossState(boss);
+                return new RetreatingBossState(boss, this);
             case BMsg.Die:
                 return new DeadBossState(boss);
             default:
+                Debug.Log("asdfasdf");
                 return null;
         }
     }
 }
 
+
+public abstract class BossTransientState : BossState
+{
+    protected BossState prevState;
+    protected float startTime;
+    protected float duration;
+
+    public BossTransientState(Boss boss, BossState prevState) : base(boss)
+    {
+        this.prevState = prevState;
+    }
+
+    public override void Enter()
+    {
+        base.Enter();
+        startTime = Time.time;
+    }
+
+    public override State<BMsg> HandleInput()
+    {
+        if (Time.time - startTime < duration) return null;
+        //return prevState;
+        return null;
+    }
+}
+
+
 public class IdleBossState : BossState
 {
     public IdleBossState(Boss boss) : base(boss) { }
+
+    public override void Enter()
+    {
+        base.Enter();
+        boss.SetColor(Color.cyan);
+    }
 
     public override State<BMsg> OnMessaged(BMsg msg)
     {
@@ -87,6 +120,12 @@ public class BewaringBossState : BossState
 {
     public BewaringBossState(Boss boss) : base(boss) { }
 
+    public override void Enter()
+    {
+        base.Enter();
+        boss.SetColor(Color.blue);
+    }
+
     public override State<BMsg> OnMessaged(BMsg msg)
     {
         State<BMsg> nextState = base.OnMessaged(msg);
@@ -97,7 +136,7 @@ public class BewaringBossState : BossState
             case BMsg.BewareBoxExit:
                 return new IdleBossState(boss);
             case BMsg.MonitorBoxEnter:
-                return new MonitoringBossState(boss);
+                return new MonitoringBossState(boss, null, null);
             default:
                 return null;
         }
@@ -105,100 +144,132 @@ public class BewaringBossState : BossState
 }
 
 
-public class MonitoringBossState : BossState
+public class MonitoringBossState : BossTransientState
 {
-    public MonitoringBossState(Boss boss) : base(boss) { }
+    private BossState predictedNextState;
+
+    public override void Enter()
+    {
+        base.Enter();
+        boss.SetColor(Color.yellow);
+    }
+
+    public MonitoringBossState(Boss boss, BossState prevState, BossState predictedNextState) : base(boss, prevState)
+    {
+        duration = 3.0f;
+
+        //if (nextState == null)
+            this.predictedNextState = new RemoteBossState(boss, this);
+        //else
+            //this.nextState = nextState;
+    }
+
+    // 이전 상태를 리턴하는 대신 다음 상태를 리턴해야 하므로 재정의
+    public override State<BMsg> HandleInput()
+    {
+        //Debug.Log(Time.time - startTime);
+        //Debug.Log(this.nextState);
+        if (Time.time - startTime < duration) return null;
+        //Debug.Log(nextState);
+        return predictedNextState;
+    }
 
     public override State<BMsg> OnMessaged(BMsg msg)
     {
-        State<BMsg> nextState = base.OnMessaged(msg);
-        if (nextState != null) return base.OnMessaged(msg);
+        BossState nextState = (BossState)base.OnMessaged(msg);
+        if (nextState != null) return nextState;
 
         switch (msg)
         {
-            case BMsg.BewareBoxExit:
-                return new IdleBossState(boss);
+            case BMsg.MeleeBoxEnter:
+                nextState = new MeleeBossState(boss, this);
+                break;
             case BMsg.MonitorBoxEnter:
-                return new MonitoringBossState(boss);
-            default:
-                return null;
+                nextState = new RemoteBossState(boss, this);
+                break;
         }
+
+        return null;
     }
 }
+
+
+public class MeleeBossState : BossTransientState
+{
+    public override void Enter()
+    {
+        base.Enter();
+        boss.SetColor(Color.red);
+    }
+
+    public MeleeBossState(Boss boss, BossState prevState) : base(boss, prevState) { duration = 2.0f; }
+}
+
+
+public class RemoteBossState : BossTransientState
+{
+    public override void Enter()
+    {
+        base.Enter();
+        boss.SetColor(Color.grey);
+    }
+
+    public RemoteBossState(Boss boss, BossState prevState) : base(boss, prevState) { duration = 4.0f; }
+}
+
 
 public class DeadBossState : BossState
 {
+    public override void Enter()
+    {
+        base.Enter();
+        boss.SetColor(Color.black);
+    }
+
     public DeadBossState(Boss boss) : base(boss) { }
-}
 
-public class RetreatingBossState : BossState
-{
-    public RetreatingBossState(Boss boss) : base(boss) { }
-}
-
-/*
-public abstract class BossState
-{
-    //public string stateName { get; private set; }
-    // 패턴 사용 따위의 작업 수행
-    public abstract void Execute();
-    // 스프라이트 변경 따위의 작업 수행
-    public abstract void Enter();
-
-    //public void setStateName(string stateName) { this.stateName = stateName; }
-
-    //abstract public void OnExit();
-}
-
-public class BossStateIdle : BossState
-{
     public override void Execute()
     {
-        Debug.Log("대기 중");
+        base.Execute();
+        boss.Restart();
     }
+}
+
+
+public class RetreatingBossState : BossTransientState
+{
+    private const float healInterval = 1.0f;
 
     public override void Enter()
     {
-        Debug.Log("대기 상태 진입");
+        base.Enter();
+        boss.SetColor(Color.green);
     }
-}
 
-public class BossStateMelee : BossState
-{
+    public RetreatingBossState(Boss boss, BossState prevState) : base(boss, prevState) { duration = 1000.0f; }
+
     public override void Execute()
     {
-        Debug.Log("근거리 공격");
+        base.Execute();
+        if (Time.time - startTime < healInterval) return;
+
+        startTime = Time.time;
+        boss.Heal();
     }
 
-    public override void Enter()
+    public override State<BMsg> OnMessaged(BMsg msg)
     {
-        Debug.Log("근거리 상태 진입");
+        //BossState nextState = (BossState)base.OnMessaged(msg);
+        //if (nextState is DeadBossState) return nextState;
+
+        switch (msg)
+        {
+            case BMsg.EnoughHP:
+                return prevState;
+            case BMsg.Die:
+                return new DeadBossState(boss);
+            default:
+                return null;
+        }
     }
 }
-
-public class BossStateRemote : BossState
-{
-    public override void Execute()
-    {
-        Debug.Log("원거리 공격");
-    }
-
-    public override void Enter()
-    {
-        Debug.Log("원거리 상태 진입");
-    }
-}
-
-public class BossStateRetreat : BossState
-{
-    public override void Execute()
-    {
-        Debug.Log("후퇴");
-    }
-
-    public override void Enter()
-    {
-        Debug.Log("후퇴 상태 진입");
-    }
-}
-*/
