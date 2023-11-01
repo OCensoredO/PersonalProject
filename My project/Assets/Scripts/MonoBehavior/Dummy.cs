@@ -7,7 +7,7 @@ using UnityEngine.SceneManagement;
 public class Dummy : MonoBehaviour
 {
     public int hp = 20;
-    public DataManager dMan;
+    private DataManager dMan;
     //private string state = "idle";
     //private BossState state;
     //private static BossStateIdle stateIdle = new BossStateIdle();
@@ -38,7 +38,7 @@ public class Dummy : MonoBehaviour
 
         if (other.tag != "Bullet") return;
         //hp -= 3;
-        hp -= dMan.gameData.bullets[0].damage;
+        //hp -= dMan.gameData.bullets[0].damage;
     }
 
     private void OnTriggerExit(Collider other)

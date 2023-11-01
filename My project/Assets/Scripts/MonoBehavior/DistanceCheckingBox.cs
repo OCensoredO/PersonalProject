@@ -4,22 +4,28 @@ using UnityEngine;
 
 public class DistanceCheckingBox : MonoBehaviour
 {
-    private Dummy dummy;
+    private GameObject bossObj;
 
     private void Start()
     {
-        dummy = GetComponentInParent<Dummy>();
+        bossObj = transform.parent.gameObject;
     }
 
     private void OnTriggerEnter(Collider other)
     {
-        // remote나 idle상태일 때, 일정 거리 내로 플레이어가 들어오면 melee 상태로 전이
-        //if (other.tag == "Player") dummy.setNextState("Melee");
+        if (!other.gameObject.CompareTag("Player")) return;
+        
+        if (System.Enum.TryParse(tag + "Enter", out BMsg parsedEnum))
+            bossObj.SendMessage("SendMessageToFSM", parsedEnum);
+            //Debug.Log(parsedEnum);
     }
 
     private void OnTriggerExit(Collider other)
     {
-        // melee 상태일 때, 일정 거리 이상 플레이어가 멀어지면 remote 상태로 전이
-        //if (other.tag == "Player") dummy.setNextState("Remote");
+        if (!other.gameObject.CompareTag("Player")) return;
+
+        if (System.Enum.TryParse(tag + "Exit", out BMsg parsedEnum))
+            bossObj.SendMessage("SendMessageToFSM", parsedEnum);
+            //Debug.Log(parsedEnum);
     }
 }

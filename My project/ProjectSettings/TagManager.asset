@@ -6,8 +6,9 @@ TagManager:
   tags:
   - GameManager
   - Ground
-  - Enemy
   - Bullet
+  - Boss
+  - MeleeBox
   layers:
   - Default
   - TransparentFX

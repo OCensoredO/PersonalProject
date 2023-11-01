@@ -1,3 +1,5 @@
+using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
 
 public enum BState
@@ -13,25 +15,30 @@ public enum BState
 
 public enum BMsg
 {
-
+    LowHP,
+    EnoughHP,
+    Die,
+    BewareBoxEnter,
+    BewareBoxExit,
+    MonitorBoxEnter,
+    MonitorBoxExit,
+    MeleeBoxEnter,
+    MeleeBoxExit
 }
 
-public abstract class BossState
+public abstract class BossState : State<BMsg>
 {
     protected Boss boss;
-    protected BossState prevState;
+    //protected BossState prevState;
 
-    public BossState(Boss boss, BossState prevState)
+    public BossState(Boss boss)
     {
         this.boss = boss;
-        this.prevState = prevState;
+        //this.prevState = prevState;
     }
 
-    public virtual BossState HandleInput()
+    public virtual State<BMsg> HandleInput()
     {
-        // 일단은 핸들인풋에 넣긴 했는데 뭔가 부자연스러움, 더 고려해보기
-        //if (boss.hp <= 0) return new BossDieState(boss, prevState);
-        //if (boss.hp < 5) return new BossRetreatState(boss, prevState);
 
         // 상태 전이가 일어나지 않음
         return null;
@@ -39,26 +46,94 @@ public abstract class BossState
 
     public virtual void Enter() { return; }
 
-    public virtual void Execute()
-    {
-
-    }
+    public virtual void Execute() { return; }
 
     public virtual void Exit() { return; }
-    public virtual void OnMessaged(BMsg msg)
+    public virtual State<BMsg> OnMessaged(BMsg msg)
     {
-
+        switch(msg)
+        {
+            case BMsg.LowHP:
+                return new RetreatingBossState(boss);
+            case BMsg.Die:
+                return new DeadBossState(boss);
+            default:
+                return null;
+        }
     }
 }
 
-public class BossDieState : BossState
+public class IdleBossState : BossState
 {
-    public BossDieState(Boss boss, BossState prevState) : base(boss, prevState) { }
+    public IdleBossState(Boss boss) : base(boss) { }
+
+    public override State<BMsg> OnMessaged(BMsg msg)
+    {
+        State<BMsg> nextState = base.OnMessaged(msg);
+        if (nextState != null) return base.OnMessaged(msg);
+
+        switch(msg)
+        {
+            case BMsg.BewareBoxEnter:
+                return new BewaringBossState(boss);
+            default:
+                return null;
+        }
+    }
 }
 
-public class BossRetreatState : BossState
+
+public class BewaringBossState : BossState
 {
-    public BossRetreatState(Boss boss, BossState prevState) : base(boss, prevState) { }
+    public BewaringBossState(Boss boss) : base(boss) { }
+
+    public override State<BMsg> OnMessaged(BMsg msg)
+    {
+        State<BMsg> nextState = base.OnMessaged(msg);
+        if (nextState != null) return base.OnMessaged(msg);
+
+        switch (msg)
+        {
+            case BMsg.BewareBoxExit:
+                return new IdleBossState(boss);
+            case BMsg.MonitorBoxEnter:
+                return new MonitoringBossState(boss);
+            default:
+                return null;
+        }
+    }
+}
+
+
+public class MonitoringBossState : BossState
+{
+    public MonitoringBossState(Boss boss) : base(boss) { }
+
+    public override State<BMsg> OnMessaged(BMsg msg)
+    {
+        State<BMsg> nextState = base.OnMessaged(msg);
+        if (nextState != null) return base.OnMessaged(msg);
+
+        switch (msg)
+        {
+            case BMsg.BewareBoxExit:
+                return new IdleBossState(boss);
+            case BMsg.MonitorBoxEnter:
+                return new MonitoringBossState(boss);
+            default:
+                return null;
+        }
+    }
+}
+
+public class DeadBossState : BossState
+{
+    public DeadBossState(Boss boss) : base(boss) { }
+}
+
+public class RetreatingBossState : BossState
+{
+    public RetreatingBossState(Boss boss) : base(boss) { }
 }
 
 /*

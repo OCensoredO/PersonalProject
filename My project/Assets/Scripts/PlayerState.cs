@@ -2,26 +2,18 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public enum PState
-{
-    Idle,
-    Move,
-    Jump,
-    Shoot
-}
-
 public enum PMsg
 {
     Land
 }
 
-public abstract class PlayerState
+public abstract class PlayerState : State<PMsg>
 {
     protected PlayerController playerController;
 
     public PlayerState(PlayerController playerController) { this.playerController = playerController; }
 
-    public virtual PlayerState HandleInput()
+    public virtual State<PMsg> HandleInput()
     {
         // PlayerController와의 디커플링을 위해 조준 모드 정보를 PlayerState 안에 집어 넣는 것 고려중
         // 조준 모드 전환
@@ -30,18 +22,7 @@ public abstract class PlayerState
 
         // 총알 발사
         if (Input.GetKeyDown(KeyCode.F))
-            return new ShootingPlayerState(playerController);
-        /*
-    {
-        //playerController.SetState(PState.Shoot);
-        //return true;
-        return new ShootingPlayerState(playerController);
-    }
-        */
-
-        //execute();
-        //return false;
-        //return new ShootPlayerState(playerController);
+            return new ShootingPlayerState(playerController, this);
 
         return null;
     }
@@ -49,7 +30,7 @@ public abstract class PlayerState
     public virtual void Enter() { return; }
     public virtual void Execute() { return; }
     public virtual void Exit() { return; }
-    public virtual PlayerState OnMessaged(PMsg pmsg) { return null; }
+    public virtual State<PMsg> OnMessaged(PMsg pmsg) { return null; }
 }
 
 // 들어온 후 일정 시간 뒤 이전 상태로 돌아가는 상태
@@ -71,9 +52,9 @@ public class IdlePlayerState : PlayerState
 {
     public IdlePlayerState(PlayerController playerController) : base(playerController) { }
 
-    public override PlayerState HandleInput()
+    public override State<PMsg> HandleInput()
     {
-        PlayerState nextState = base.HandleInput();
+        State<PMsg> nextState = base.HandleInput();
         if (nextState != null) return nextState;
 
         if (Input.GetKeyDown(KeyCode.Space))
@@ -107,9 +88,9 @@ public class MovingPlayerState : PlayerState
         playerController.Move();
     }
 
-    public override PlayerState HandleInput()
+    public override State<PMsg> HandleInput()
     {
-        PlayerState nextState = base.HandleInput();
+        State<PMsg> nextState = base.HandleInput();
         if (nextState != null) return nextState;
 
         if (Input.GetKeyDown(KeyCode.Space))
@@ -137,11 +118,15 @@ public class JumpingPlayerState : PlayerTransientState
 {
     public JumpingPlayerState(PlayerController playerController, PlayerState prevState) : base(playerController, prevState) { }
 
+    public override State<PMsg> HandleInput()
+    {
+        return base.HandleInput();
+    }
 
-    // 미완성, 동작은 하나 수정 필요
-    
+
     public override void Enter()
     {
+        base.Enter();
         playerController.Jump();
         //Execute();
     }
@@ -153,38 +138,31 @@ public class JumpingPlayerState : PlayerTransientState
     }
     
 
-    public override PlayerState OnMessaged(PMsg pmsg)
+    public override State<PMsg> OnMessaged(PMsg pmsg)
     {
         switch (pmsg)
         {
             case PMsg.Land:
                 return prevState;
-                /*
-                // 착지 시 앞뒤좌우 이동 중이었을 경우
-                if (Input.GetAxisRaw("Horizontal") != 0.0f && Input.GetAxisRaw("Vertical") != 0.0f)
-                {
-                    playerController.SetState(PState.Move);
-                    break;
-                }
-                // 앞뒤좌우 이동 중이지 않았을 경우
-                playerController.SetState(PState.Idle);
-                break;
-                */
+            default:
+                return null;
         }
-
-        return null;
     }
 }
 
 // 트랜지언트 스테이트 적용 예정
-public class ShootingPlayerState : PlayerState
+public class ShootingPlayerState : PlayerTransientState
 {
-    public ShootingPlayerState(PlayerController playerController) : base(playerController) { }
+    public ShootingPlayerState(PlayerController playerController, PlayerState prevState) : base(playerController, prevState) { }
 
+    public override State<PMsg> HandleInput()
+    {
+        return prevState;
+    }
     public override void Enter()
     {
         base.Enter();
         playerController.Shoot();
-        playerController.ReturnToPrevState();
+        //playerController.ReturnToPrevState();
     }
 }

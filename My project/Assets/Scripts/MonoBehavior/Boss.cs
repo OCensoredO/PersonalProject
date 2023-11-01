@@ -7,29 +7,33 @@ using UnityEngine.SceneManagement;
 public class Boss : MonoBehaviour
 {
     public int hp = 20;
-    public DataManager dMan;
-    //private string state = "idle";
-    //private BossState state;
-    //private static BossStateIdle stateIdle = new BossStateIdle();
-    //private static BossStateMelee stateMelee = new BossStateMelee();
-    //private static BossStateRemote stateRemote = new BossStateRemote();
-    //private static BossStateRetreat stateRetreat = new BossStateRetreat();
-    //Stack<BossState> bossStatesStack;
-    //public string nextStateName { get; private set; }
+    private DataManager dMan;
+
+    private FSM<BMsg> bossFSM;
 
     private void Start()
     {
-        //bossStatesStack.Push(stateIdle);
-        //state = stateIdle;
-        //nextStateName = "Idle";
-        StartCoroutine(UsePattern());
+        //StartCoroutine(UsePattern());
+        dMan = GameObject.FindGameObjectWithTag("GameManager").GetComponent<DataManager>();
+
+        bossFSM = new FSM<BMsg>();
+        bossFSM.Start(new IdleBossState(this));
     }
 
     public void Update()
     {
+        if (hp <= 0)
+            bossFSM.SendMessage(BMsg.Die);
+        else if (hp < 5)
+            bossFSM.SendMessage(BMsg.LowHP);
+        
+        //if (hp < 0) SceneManager.LoadScene("Main");
+    }
 
-        if (hp < 0) SceneManager.LoadScene("Main");
-        dMan = GameObject.FindGameObjectWithTag("GameManager").GetComponent<DataManager>();
+    public void SendMessageToFSM(BMsg msg)
+    {
+        bossFSM.SendMessage(msg);
+        Debug.Log(msg + " º¸³»Áü");
     }
 
     private void OnTriggerEnter(Collider other)
@@ -37,7 +41,7 @@ public class Boss : MonoBehaviour
         //if (other.tag == "Player" && state == "idle") state = "melee";
 
         if (other.tag != "Bullet") return;
-        //hp -= 3;
+        // ÀÎµ¦½º°ªÀº ÀÓ½Ã·Î 0À¸·Î µÒ
         hp -= dMan.gameData.bullets[0].damage;
     }
 
@@ -46,13 +50,6 @@ public class Boss : MonoBehaviour
         //if (other.tag == "Player" && state == "idle") state = "remote";
     }
 
-    //public string getState() { return state; }
-
-    //public void setState(string state) { this.state = state; }
-
-    //public string getNextState() { return nextState; }
-
-    //public void setNextState(string nextStateName) { this.nextStateName = nextStateName; }
 
     IEnumerator UsePattern()
     {
@@ -68,36 +65,6 @@ public class Boss : MonoBehaviour
 
     }
 
-    private bool ChangeState()
-    {
-
-
-        /*
-        string currStateName = state.GetType().Name;
-        if (currStateName.Substring(9) == nextStateName) return false;
-
-        switch(nextStateName)
-        {
-            case "Idle":
-                state = stateIdle;
-                break;
-            case "Melee":
-                state = stateMelee;
-                break;
-            case "Remote":
-                state = stateRemote;
-                break;
-            case "Retreat":
-                state = stateRetreat;
-                break;
-            default:
-                break;
-        }
-        return true;
-        */
-
-        return true;
-    }
 }
 /*
             switch (state)

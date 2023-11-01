@@ -147,14 +147,7 @@ public class PlayerController : MonoBehaviour
     private const int playerSpeed = 8;
     private const int jumpForce = 300;
 
-    private PlayerState prevState;
-    private PlayerState currState;
-    private PlayerState nextState;
-
-    private static IdlePlayerState stateIdle;
-    private static MovingPlayerState stateMove;
-    private static JumpingPlayerState stateJump;
-    private static ShootingPlayerState stateShoot;
+    private FSM<PMsg> playerFSM;
 
     private DataManager dataManager;
     private Rigidbody rd;
@@ -164,66 +157,33 @@ public class PlayerController : MonoBehaviour
     private void Start()
     {
         isTargetting = true;
-
-        stateIdle = new IdlePlayerState(this);
-        stateMove = new MovingPlayerState(this);
-        // 여기 밑에 이거 몬가... 몬가 이상함
-        stateJump = new JumpingPlayerState(this, null);
-        stateShoot = new ShootingPlayerState(this);
-
+        
         rd = GetComponent<Rigidbody>();
         dataManager = GameObject.FindGameObjectWithTag("GameManager").GetComponent<DataManager>();
 
-        currState = stateIdle;
+        playerFSM = new FSM<PMsg>();
+        playerFSM.Start(new IdlePlayerState(this));
     }
 
     private void Update()
     {
-        /*
-        if (currState.HandleInput())
-        {
-            Debug.Log("전이");
-            return;
-        }
-        */
-
-        // if(메시지있) state = currState.OnMessaged(맛사지)
-
-        //state = HandleInput();
-        //currState.HandleInput();
-        //currState.Execute();
-        Debug.Log(currState.GetType().Name);
+        playerFSM.ManageState();
+        //playerFSM.PrintLog();
     }
 
-    public void SetState(PState state)
+    /*
+    private void manageState(State state)
     {
-        currState.Exit();
-        prevState = currState;
-
-        switch(state)
+        nextState = state;
+        if (nextState != null)
         {
-            case PState.Idle:
-                currState = stateIdle;
-                break;
-            case PState.Move:
-                currState = stateMove;
-                break;
-            case PState.Jump:
-                currState = stateJump;
-                break;
-            case PState.Shoot:
-                currState = stateShoot;
-                break;
-            default:
-                break;
+            currState.Exit();
+            currState = nextState;
+            currState.Enter();
         }
-        currState.Enter();
+        currState.Execute();
     }
-
-    private void setState()
-    {
-        
-    }
+    */
 
     public void Move()
     {
@@ -283,11 +243,9 @@ public class PlayerController : MonoBehaviour
 
     public void ToggleTargettingMode() { isTargetting = !isTargetting; }
 
-    public void ReturnToPrevState() { currState = prevState; }
-
     private void OnCollisionEnter(Collision collision)
     {
         if (collision.gameObject.CompareTag("Ground"))
-            currState.OnMessaged(PMsg.Land);
+            playerFSM.SendMessage(PMsg.Land);
     }
 }

@@ -137,9 +137,10 @@ GameObject:
   - component: {fileID: 18462299}
   - component: {fileID: 18462303}
   - component: {fileID: 18462304}
+  - component: {fileID: 18462305}
   m_Layer: 0
-  m_Name: Dummy
-  m_TagString: Enemy
+  m_Name: Boss
+  m_TagString: Boss
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -246,13 +247,25 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 18462298}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 248fac85c2c81ee47ae498dcc658d625, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   hp: 20
-  dMan: {fileID: 0}
+--- !u!114 &18462305
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 18462298}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c431e1c65218d0d4fa4769b2d5aec181, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  hp: 20
 --- !u!1 &53619526
 GameObject:
   m_ObjectHideFlags: 0
@@ -515,7 +528,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 653588948}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 1, z: -2.5}
+  m_LocalPosition: {x: 0, y: 1, z: -41.75}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -559,7 +572,7 @@ CapsuleCollider:
   m_GameObject: {fileID: 653588948}
   m_Material: {fileID: 0}
   m_IsTrigger: 1
-  m_Enabled: 1
+  m_Enabled: 0
   m_Radius: 0.5
   m_Height: 2
   m_Direction: 1
@@ -768,7 +781,7 @@ GameObject:
   - component: {fileID: 859187232}
   - component: {fileID: 859187231}
   m_Layer: 0
-  m_Name: Plane
+  m_Name: Plain
   m_TagString: Ground
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -847,7 +860,7 @@ Transform:
   m_GameObject: {fileID: 859187230}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: -16.25}
-  m_LocalScale: {x: 3, y: 1, z: 6}
+  m_LocalScale: {x: 3, y: 1, z: 15}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
@@ -1137,7 +1150,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a833cd609f42eae408e924a725d4a3b0, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  dummy: {fileID: 0}
+  boss: {fileID: 0}
 --- !u!1 &1213683433
 GameObject:
   m_ObjectHideFlags: 0
@@ -1220,12 +1233,12 @@ GameObject:
   - component: {fileID: 1394199165}
   - component: {fileID: 1394199168}
   m_Layer: 0
-  m_Name: DistanceCheckingBox
-  m_TagString: Untagged
+  m_Name: MeleeBox
+  m_TagString: MeleeBox
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!4 &1394199164
 Transform:
   m_ObjectHideFlags: 0
@@ -1235,7 +1248,7 @@ Transform:
   m_GameObject: {fileID: 1394199163}
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: -7.75}
-  m_LocalScale: {x: 0.98, y: 0.95, z: 15}
+  m_LocalScale: {x: 0.9800001, y: 0.95, z: 15}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 18462302}
