@@ -28,6 +28,7 @@ public enum BMsg
 
 public abstract class BossState : State<BMsg>
 {
+    protected Color bColor;
     protected Boss boss;
     //protected BossState prevState;
 
@@ -43,7 +44,10 @@ public abstract class BossState : State<BMsg>
         return null;
     }
 
-    public virtual void Enter() { return; }
+    public virtual void Enter()
+    {
+        boss.SetColor(bColor);
+    }
 
     public virtual void Execute() { return; }
 
@@ -57,7 +61,6 @@ public abstract class BossState : State<BMsg>
             case BMsg.Die:
                 return new DeadBossState(boss);
             default:
-                Debug.Log("asdfasdf");
                 return null;
         }
     }
@@ -67,12 +70,14 @@ public abstract class BossState : State<BMsg>
 public abstract class BossTransientState : BossState
 {
     protected BossState prevState;
+    public BossState nextState;
     protected float startTime;
     protected float duration;
 
-    public BossTransientState(Boss boss, BossState prevState) : base(boss)
+    public BossTransientState(Boss boss, BossState prevState, BossState nextState = null) : base(boss)
     {
         this.prevState = prevState;
+        this.nextState = nextState;
     }
 
     public override void Enter()
@@ -85,20 +90,14 @@ public abstract class BossTransientState : BossState
     {
         if (Time.time - startTime < duration) return null;
         //return prevState;
-        return null;
+        return prevState;
     }
 }
 
 
 public class IdleBossState : BossState
 {
-    public IdleBossState(Boss boss) : base(boss) { }
-
-    public override void Enter()
-    {
-        base.Enter();
-        boss.SetColor(Color.cyan);
-    }
+    public IdleBossState(Boss boss) : base(boss) { bColor = Color.cyan; }
 
     public override State<BMsg> OnMessaged(BMsg msg)
     {
@@ -118,13 +117,7 @@ public class IdleBossState : BossState
 
 public class BewaringBossState : BossState
 {
-    public BewaringBossState(Boss boss) : base(boss) { }
-
-    public override void Enter()
-    {
-        base.Enter();
-        boss.SetColor(Color.blue);
-    }
+    public BewaringBossState(Boss boss) : base(boss) { bColor = Color.blue ; }
 
     public override State<BMsg> OnMessaged(BMsg msg)
     {
@@ -146,38 +139,26 @@ public class BewaringBossState : BossState
 
 public class MonitoringBossState : BossTransientState
 {
-    private BossState predictedNextState;
-
-    public override void Enter()
+    public MonitoringBossState(Boss boss, BossState prevState, BossState nextState) : base(boss, prevState, nextState)
     {
-        base.Enter();
-        boss.SetColor(Color.yellow);
-    }
-
-    public MonitoringBossState(Boss boss, BossState prevState, BossState predictedNextState) : base(boss, prevState)
-    {
+        bColor = Color.yellow;
         duration = 3.0f;
 
-        //if (nextState == null)
-            this.predictedNextState = new RemoteBossState(boss, this);
-        //else
-            //this.nextState = nextState;
+        if (this.nextState == null)
+            this.nextState = new RemoteBossState(boss, this);
     }
 
     // 이전 상태를 리턴하는 대신 다음 상태를 리턴해야 하므로 재정의
     public override State<BMsg> HandleInput()
     {
-        //Debug.Log(Time.time - startTime);
-        //Debug.Log(this.nextState);
         if (Time.time - startTime < duration) return null;
-        //Debug.Log(nextState);
-        return predictedNextState;
+        return nextState;
     }
 
     public override State<BMsg> OnMessaged(BMsg msg)
     {
-        BossState nextState = (BossState)base.OnMessaged(msg);
-        if (nextState != null) return nextState;
+        BossState state = (BossState)base.OnMessaged(msg);
+        if (state != null) return state;
 
         switch (msg)
         {
@@ -188,7 +169,6 @@ public class MonitoringBossState : BossTransientState
                 nextState = new RemoteBossState(boss, this);
                 break;
         }
-
         return null;
     }
 }
@@ -196,37 +176,76 @@ public class MonitoringBossState : BossTransientState
 
 public class MeleeBossState : BossTransientState
 {
-    public override void Enter()
+    public MeleeBossState(Boss boss, BossTransientState prevState) : base(boss, prevState)
     {
-        base.Enter();
-        boss.SetColor(Color.red);
+        bColor = Color.red;
+        duration = 2.0f;
     }
 
-    public MeleeBossState(Boss boss, BossState prevState) : base(boss, prevState) { duration = 2.0f; }
+
+    public override State<BMsg> HandleInput()
+    {
+        if (Time.time - startTime < duration) return null;
+        return new MonitoringBossState(boss, this, nextState);
+    }
+
+    public override State<BMsg> OnMessaged(BMsg msg)
+    {
+        BossState state = (BossState)base.OnMessaged(msg);
+        if (state != null) return state;
+
+        switch (msg)
+        {
+            case BMsg.MeleeBoxEnter:
+                nextState = new MeleeBossState(boss, this);
+                break;
+            case BMsg.MeleeBoxExit:
+                nextState = new RemoteBossState(boss, this);
+                break;
+        }
+
+        return null;
+    }
 }
 
 
 public class RemoteBossState : BossTransientState
 {
-    public override void Enter()
+    public RemoteBossState(Boss boss, BossState prevState) : base(boss, prevState)
     {
-        base.Enter();
-        boss.SetColor(Color.grey);
+        bColor = Color.grey;
+        duration = 4.0f;
     }
 
-    public RemoteBossState(Boss boss, BossState prevState) : base(boss, prevState) { duration = 4.0f; }
+    public override State<BMsg> HandleInput()
+    {
+        if (Time.time - startTime < duration) return null;
+        return new MonitoringBossState(boss, this, nextState);
+    }
+
+    public override State<BMsg> OnMessaged(BMsg msg)
+    {
+        BossState state = (BossState)base.OnMessaged(msg);
+        if (state != null) return state;
+
+        switch (msg)
+        {
+            case BMsg.MeleeBoxEnter:
+                nextState = new MeleeBossState(boss, this);
+                break;
+            case BMsg.MeleeBoxExit:
+                nextState = new RemoteBossState(boss, this);
+                break;
+        }
+
+        return null;
+    }
 }
 
 
 public class DeadBossState : BossState
 {
-    public override void Enter()
-    {
-        base.Enter();
-        boss.SetColor(Color.black);
-    }
-
-    public DeadBossState(Boss boss) : base(boss) { }
+    public DeadBossState(Boss boss) : base(boss) { bColor = Color.black; }
 
     public override void Execute()
     {
@@ -240,13 +259,11 @@ public class RetreatingBossState : BossTransientState
 {
     private const float healInterval = 1.0f;
 
-    public override void Enter()
+    public RetreatingBossState(Boss boss, BossState prevState) : base(boss, prevState)
     {
-        base.Enter();
-        boss.SetColor(Color.green);
+        bColor = Color.green;
+        duration = 1000.0f;
     }
-
-    public RetreatingBossState(Boss boss, BossState prevState) : base(boss, prevState) { duration = 1000.0f; }
 
     public override void Execute()
     {
