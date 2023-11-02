@@ -58,7 +58,6 @@ public class IdlePlayerState : PlayerState
         if (Input.GetKeyDown(KeyCode.Space))
             return new JumpingPlayerState(playerController, this);
 
-        // 이 이동값? 살릴 방법 고려해보기
         if (Input.GetAxisRaw("Horizontal") != 0.0f || Input.GetAxisRaw("Vertical") != 0.0f)
         {
             return new MovingPlayerState(playerController);

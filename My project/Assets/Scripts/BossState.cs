@@ -2,17 +2,6 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public enum BState
-{
-    Idle,
-    Beware,
-    Monitor,
-    Melee,
-    Remote,
-    Retreat,
-    Die
-}
-
 public enum BMsg
 {
     LowHP,
@@ -30,12 +19,10 @@ public abstract class BossState : State<BMsg>
 {
     protected Color bColor;
     protected Boss boss;
-    //protected BossState prevState;
 
     public BossState(Boss boss)
     {
         this.boss = boss;
-        //this.prevState = prevState;
     }
 
     public virtual State<BMsg> HandleInput()
@@ -276,9 +263,6 @@ public class RetreatingBossState : BossTransientState
 
     public override State<BMsg> OnMessaged(BMsg msg)
     {
-        //BossState nextState = (BossState)base.OnMessaged(msg);
-        //if (nextState is DeadBossState) return nextState;
-
         switch (msg)
         {
             case BMsg.EnoughHP:

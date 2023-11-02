@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
-// 하드코딩
 public class Boss : MonoBehaviour
 {
     public int hp { get; private set; }
@@ -59,12 +58,7 @@ public class Boss : MonoBehaviour
         hp -= dMan.gameData.bullets[0].damage;
     }
 
-    public void Heal()
-    {
-        hp++;
-        Debug.Log("힐");
-    }
-
+    public void Heal() { hp++; }
     // 시연을 위해 임시로 기능 구현
     public void Restart()
     {
@@ -76,23 +70,23 @@ public class Boss : MonoBehaviour
     {
         renderer.material.color = color;
     }
-
-    /*
-    IEnumerator UsePattern()
-    {
-        while (true)
-        {
-            // 상태 전이 시, 상태 진입할 때 해야 할 작업 수행
-            // 게임 시작 시에는 Idle로 시작, 전이 X
-            //if (ChangeState())  state.Enter();
-            //state.Execute();
-
-            yield return new WaitForSeconds(4.0f);
-        }
-
-    }
-    */
 }
+/*
+IEnumerator UsePattern()
+{
+    while (true)
+    {
+        // 상태 전이 시, 상태 진입할 때 해야 할 작업 수행
+        // 게임 시작 시에는 Idle로 시작, 전이 X
+        //if (ChangeState())  state.Enter();
+        //state.Execute();
+
+        yield return new WaitForSeconds(4.0f);
+    }
+
+}
+*/
+
 /*
             switch (state)
             {
