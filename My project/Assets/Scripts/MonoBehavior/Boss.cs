@@ -7,8 +7,7 @@ public class Boss : MonoBehaviour
 {
     public int hp { get; private set; }
     private DataManager dMan;
-
-    Renderer renderer;
+    new Renderer renderer;
 
     private FSM<BMsg> bossFSM;
 
@@ -69,6 +68,11 @@ public class Boss : MonoBehaviour
     public void SetColor(Color color)
     {
         renderer.material.color = color;
+    }
+
+    public void ShootBeam()
+    {
+        
     }
 }
 /*

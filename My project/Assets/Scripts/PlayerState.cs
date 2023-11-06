@@ -75,7 +75,6 @@ public class MovingPlayerState : PlayerState
 
     public override void Execute()
     {
-        // 이거 땜에 커플링은 불가피할듯. 나중에 이동속도 증가/감소하는 거 넣으려면 플컨에서 값 가져와야 할듯함
         playerController.Move();
     }
 
