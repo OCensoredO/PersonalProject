@@ -2,11 +2,11 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using System.IO;
-using Newtonsoft.Json;
+//using Newtonsoft.Json;
 
 public class DataManager : MonoBehaviour
 {
-    private string jsonData;
+    //private string jsonData;
     public GameData gameData { get; private set; }
 
     void Start()
@@ -15,8 +15,9 @@ public class DataManager : MonoBehaviour
 
         if (File.Exists(filePath))
         {
-            jsonData = File.ReadAllText(filePath);
-            gameData = JsonConvert.DeserializeObject<GameData>(jsonData);
+            string jsonData = File.ReadAllText(filePath);
+            //gameData = JsonConvert.DeserializeObject<GameData>(jsonData);
+            gameData = JsonUtility.FromJson<GameData>(jsonData);
         }
         else
         {

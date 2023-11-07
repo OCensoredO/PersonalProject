@@ -7,6 +7,7 @@ public class GameData
     public List<Bullet> bullets;
 }
 
+[System.Serializable]
 public class Bullet
 {
     public string name;

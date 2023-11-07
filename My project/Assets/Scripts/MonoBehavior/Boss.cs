@@ -72,7 +72,7 @@ public class Boss : MonoBehaviour
 
     public void ShootBeam()
     {
-        
+        //GameObject BeamPrefab = 
     }
 }
 /*
