@@ -72,7 +72,8 @@ public class Boss : MonoBehaviour
 
     public void ShootBeam()
     {
-        //GameObject BeamPrefab = 
+        GameObject BeamPrefab = Resources.Load(dMan.gameData.enemyBullets[0].prefab) as GameObject;
+        Instantiate(BeamPrefab, transform.position, transform.rotation);
     }
 }
 /*

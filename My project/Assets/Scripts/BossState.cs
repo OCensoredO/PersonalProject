@@ -210,11 +210,18 @@ public class RemoteBossState : BossTransientState
         return new MonitoringBossState(boss, this, nextState);
     }
 
+    public override void Enter()
+    {
+        base.Enter();
+        boss.ShootBeam();
+    }
+    /*
     public override void Execute()
     {
         //base.Execute();
         boss.ShootBeam();
     }
+    */
 
     public override State<BMsg> OnMessaged(BMsg msg)
     {

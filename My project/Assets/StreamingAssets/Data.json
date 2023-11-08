@@ -18,5 +18,13 @@
       "damage": 5,
       "prefab": "Prefabs/plasmaBullet"
     }
+  ],
+  "enemyBullets": [
+    {
+      "name": "bossBigLaser",
+      "speed": 0,
+      "damage": 1,
+      "prefab": "Prefabs/bossBigLaser"
+    }
   ]
 }
