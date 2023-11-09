@@ -26,6 +26,7 @@ public class Boss : MonoBehaviour
 
     public void Update()
     {
+        //StartCoroutine(shootBeam());
         bossFSM.ManageState();
         //bossFSM.PrintLog();
 
@@ -72,8 +73,42 @@ public class Boss : MonoBehaviour
 
     public void ShootBeam()
     {
-        GameObject BeamPrefab = Resources.Load(dMan.gameData.enemyBullets[0].prefab) as GameObject;
-        Instantiate(BeamPrefab, transform.position, transform.rotation);
+        //GameObject beamPrefab = Resources.Load(dMan.gameData.enemyBullets[0].prefab) as GameObject;
+        //GameObject beamInstance;
+        //beamInstance = Instantiate(beamPrefab, transform.position, transform.rotation);
+        //beamInstance.transform.parent = transform;
+        //Debug.Log(beamInstance.transform.parent.name);
+        //Instantiate(beamInstance);
+
+        StartCoroutine(shootBeam());
+    }
+
+    private IEnumerator shootBeam()
+    {
+        float startTime = Time.time;
+
+        GameObject beamPrefab = Resources.Load(dMan.gameData.enemyBullets[0].prefab) as GameObject;
+        GameObject beamInstance = Instantiate(beamPrefab, transform.position, transform.rotation);
+
+        Ray ray = new Ray();
+        ray.origin = transform.position - new Vector3(0f, 0f, transform.localScale.z * 0.51f);
+        Vector3 targetPos = transform.position + new Vector3(0f, -5f, -1f);
+
+        // 보완사항: 레이저 길이 조정, 레이캐스트
+
+        while (Time.time - startTime < 3.0f)
+        {
+            targetPos.y += 2f * Time.deltaTime;
+            Debug.Log(targetPos.y);
+            ray.direction = targetPos;
+            //beamInstance.transform.position = ray.origin;
+            beamInstance.transform.LookAt(targetPos);
+
+            yield return null;
+        }
+
+        Destroy(beamInstance);
+        yield return null;
     }
 }
 /*
