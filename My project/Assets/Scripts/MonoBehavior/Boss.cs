@@ -26,7 +26,6 @@ public class Boss : MonoBehaviour
 
     public void Update()
     {
-        //StartCoroutine(shootBeam());
         bossFSM.ManageState();
         //bossFSM.PrintLog();
 
@@ -71,6 +70,24 @@ public class Boss : MonoBehaviour
         renderer.material.color = color;
     }
 
+    public void UseRemotePattern()
+    {
+        int patternNum = Random.Range(0, 3);
+        switch (patternNum)
+        {
+            case 0:
+                Debug.Log("Beam");
+                StartCoroutine(shootBeam());
+                break;
+            case 1:
+                Debug.Log("Generate LaserBox");
+                StartCoroutine(generateLaserBox());
+                break;
+            default:
+                break;
+        }
+    }
+
     public void ShootBeam()
     {
         //GameObject beamPrefab = Resources.Load(dMan.gameData.enemyBullets[0].prefab) as GameObject;
@@ -80,7 +97,8 @@ public class Boss : MonoBehaviour
         //Debug.Log(beamInstance.transform.parent.name);
         //Instantiate(beamInstance);
 
-        StartCoroutine(shootBeam());
+        //StartCoroutine(shootBeam());
+        StartCoroutine(generateLaserBox());
     }
 
     private IEnumerator shootBeam()
@@ -92,14 +110,11 @@ public class Boss : MonoBehaviour
 
         Ray ray = new Ray();
         ray.origin = transform.position - new Vector3(0f, 0f, transform.localScale.z * 0.51f);
-        Vector3 targetPos = transform.position + new Vector3(0f, -5f, -1f);
+        Vector3 targetPos = transform.position + new Vector3(0f, -5f, -0.4f);
 
-        // 보완사항: 레이저 길이 조정, 레이캐스트
-
-        while (Time.time - startTime < 3.0f)
+        while (Time.time - startTime < 2.7f)
         {
-            targetPos.y += 2f * Time.deltaTime;
-            Debug.Log(targetPos.y);
+            targetPos.y += 2.2f * Time.deltaTime;
             ray.direction = targetPos;
             //beamInstance.transform.position = ray.origin;
             beamInstance.transform.LookAt(targetPos);
@@ -108,6 +123,25 @@ public class Boss : MonoBehaviour
         }
 
         Destroy(beamInstance);
+        yield return null;
+    }
+
+    private IEnumerator generateLaserBox()
+    {
+        GameObject LaserGeneratorPrefab = Resources.Load(dMan.gameData.enemyBullets[1].prefab) as GameObject;
+        GameObject LaserGeneratorInstance = Instantiate(LaserGeneratorPrefab, transform.position, transform.rotation);
+
+        float generatorPosY = Random.Range(-8f, 0.5f);
+        LaserGeneratorInstance.transform.Translate(0f, generatorPosY, 0f);
+
+        Destroy(LaserGeneratorInstance, 20.0f);
+
+        while(LaserGeneratorInstance != null)
+        {
+            LaserGeneratorInstance.transform.Translate(0f, 0f, -12f * Time.deltaTime);
+            yield return null;
+        }
+
         yield return null;
     }
 }

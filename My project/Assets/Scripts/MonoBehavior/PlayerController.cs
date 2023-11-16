@@ -145,7 +145,7 @@ public class PlayerController : MonoBehaviour
 public class PlayerController : MonoBehaviour
 {
     private const int playerSpeed = 16;
-    private const int jumpForce = 300;
+    private const int jumpForce = 800;
 
     private FSM<PMsg> playerFSM;
 

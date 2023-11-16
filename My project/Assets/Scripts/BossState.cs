@@ -213,7 +213,7 @@ public class RemoteBossState : BossTransientState
     public override void Enter()
     {
         base.Enter();
-        boss.ShootBeam();
+        boss.UseRemotePattern();
     }
     /*
     public override void Execute()
