@@ -34,7 +34,23 @@ public class Boss : MonoBehaviour
 
     IEnumerator UsePattern()
     {
+<<<<<<< Updated upstream
         while (true)
+=======
+        SceneManager.LoadScene("Main");
+    }
+
+    // 시연용 임시 기능
+    public void SetColor(Color color)
+    {
+        renderer.material.color = color;
+    }
+
+    public void UseRemotePattern()
+    {
+        int patternNum = Random.Range(0, 2);
+        switch (patternNum)
+>>>>>>> Stashed changes
         {
             int patternNum = Random.Range(0, 3);
             switch(state)
