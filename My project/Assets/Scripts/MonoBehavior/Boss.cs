@@ -72,7 +72,7 @@ public class Boss : MonoBehaviour
 
     public void UseRemotePattern()
     {
-        int patternNum = Random.Range(0, 3);
+        int patternNum = Random.Range(0, 2);
         switch (patternNum)
         {
             case 0:

@@ -116,14 +116,15 @@ public class BewaringBossState : BossState
             case BMsg.BewareBoxExit:
                 return new IdleBossState(boss);
             case BMsg.MonitorBoxEnter:
-                return new MonitoringBossState(boss, null, null);
+                //return new MonitoringBossState(boss, null, null);
+                return new RemoteBossState(boss);
             default:
                 return null;
         }
     }
 }
 
-
+/*
 public class MonitoringBossState : BossTransientState
 {
     public MonitoringBossState(Boss boss, BossState prevState, BossState nextState) : base(boss, prevState, nextState)
@@ -159,22 +160,35 @@ public class MonitoringBossState : BossTransientState
         return null;
     }
 }
+*/
 
-
-public class MeleeBossState : BossTransientState
+public class MeleeBossState : BossState
 {
-    public MeleeBossState(Boss boss, BossTransientState prevState) : base(boss, prevState)
+    private float _coolTime;
+    private float _startTime;
+    private float _elapsedTimeAfterTransition;
+
+    public MeleeBossState(Boss boss, float startTime = 0f, float elapsedTimeAfterTransition = 0f) : base(boss)
     {
         bColor = Color.red;
-        duration = 2.0f;
+        _coolTime = 4.0f;
+        _startTime = startTime;
+        _elapsedTimeAfterTransition = elapsedTimeAfterTransition;
     }
 
 
-    public override State<BMsg> HandleInput()
+    public override void Execute()
     {
-        if (Time.time - startTime < duration) return null;
-        return new MonitoringBossState(boss, this, nextState);
+        base.Execute();
+        Debug.Log(Time.time - _startTime + _elapsedTimeAfterTransition);
+
+        if (Time.time - _startTime + _elapsedTimeAfterTransition < _coolTime) return;
+
+        //boss.UseMeleePattern();
+        _startTime = Time.time;
+        _elapsedTimeAfterTransition = 0f;
     }
+
 
     public override State<BMsg> OnMessaged(BMsg msg)
     {
@@ -183,12 +197,8 @@ public class MeleeBossState : BossTransientState
 
         switch (msg)
         {
-            case BMsg.MeleeBoxEnter:
-                nextState = new MeleeBossState(boss, this);
-                break;
             case BMsg.MeleeBoxExit:
-                nextState = new RemoteBossState(boss, this);
-                break;
+                return new RemoteBossState(boss, _startTime, Time.time - _startTime);
         }
 
         return null;
@@ -196,32 +206,31 @@ public class MeleeBossState : BossTransientState
 }
 
 
-public class RemoteBossState : BossTransientState
+public class RemoteBossState : BossState
 {
-    public RemoteBossState(Boss boss, BossState prevState) : base(boss, prevState)
+    private float _coolTime;
+    private float _startTime;
+    private float _elapsedTimeAfterTransition;
+
+    public RemoteBossState(Boss boss, float startTime = 0f, float elapsedTimeAfterTransition = 0f) : base(boss)
     {
         bColor = Color.grey;
-        duration = 4.0f;
+        _coolTime = 6.0f;
+        _startTime = startTime;
+        _elapsedTimeAfterTransition = elapsedTimeAfterTransition;
     }
 
-    public override State<BMsg> HandleInput()
-    {
-        if (Time.time - startTime < duration) return null;
-        return new MonitoringBossState(boss, this, nextState);
-    }
-
-    public override void Enter()
-    {
-        base.Enter();
-        boss.UseRemotePattern();
-    }
-    /*
     public override void Execute()
     {
-        //base.Execute();
-        boss.ShootBeam();
+        base.Execute();
+        Debug.Log(Time.time - _startTime + _elapsedTimeAfterTransition);
+
+        if (Time.time - _startTime + _elapsedTimeAfterTransition < _coolTime) return;
+
+        boss.UseRemotePattern();
+        _startTime = Time.time;
+        _elapsedTimeAfterTransition = 0f;
     }
-    */
 
     public override State<BMsg> OnMessaged(BMsg msg)
     {
@@ -231,11 +240,7 @@ public class RemoteBossState : BossTransientState
         switch (msg)
         {
             case BMsg.MeleeBoxEnter:
-                nextState = new MeleeBossState(boss, this);
-                break;
-            case BMsg.MeleeBoxExit:
-                nextState = new RemoteBossState(boss, this);
-                break;
+                return new MeleeBossState(boss, _startTime, Time.time - _startTime);
         }
 
         return null;
