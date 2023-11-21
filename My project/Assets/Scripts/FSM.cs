@@ -2,29 +2,29 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public interface State<T> where T : unmanaged
+public interface IState<T> where T : unmanaged
 {
-    State<T> HandleInput();
+    IState<T> HandleInput();
 
     void Enter();
     void Execute();
     void Exit();
-    State<T> OnMessaged(T pmsg);
+    IState<T> OnMessaged(T pmsg);
 }
 
 
 public class FSM<T> where T : unmanaged
 {
-    private State<T> currState;
-    private State<T> nextState;
+    private IState<T> currState;
+    private IState<T> nextState;
 
-    public void Start(State<T> currState)
+    public void Start(IState<T> currState)
     {
         this.currState = currState;
         currState.Enter();
     }
 
-    public void ManageState(State<T> state = null)
+    public void ManageState(IState<T> state = null)
     {
         if (state != null)
             nextState = state;

@@ -6,6 +6,8 @@ using UnityEngine.SceneManagement;
 public class Boss : MonoBehaviour
 {
     public int hp { get; private set; }
+    private float speed;
+
     private DataManager dMan;
     new Renderer renderer;
 
@@ -15,6 +17,7 @@ public class Boss : MonoBehaviour
     private void Start()
     {
         hp = 20;
+        speed = 2f;
         dMan = GameObject.FindGameObjectWithTag("GameManager").GetComponent<DataManager>();
 
         // 시연용 기능인 SetColor()를 위해 임시로 선언한 변수
@@ -104,6 +107,7 @@ public class Boss : MonoBehaviour
     private IEnumerator shootBeam()
     {
         float startTime = Time.time;
+        float originalSpeed = speed;
 
         GameObject beamPrefab = Resources.Load(dMan.gameData.enemyBullets[0].prefab) as GameObject;
         GameObject beamInstance = Instantiate(beamPrefab, transform.position, transform.rotation);
@@ -112,6 +116,9 @@ public class Boss : MonoBehaviour
         ray.origin = transform.position - new Vector3(0f, 0f, transform.localScale.z * 0.51f);
         Vector3 targetPos = transform.position + new Vector3(0f, -5f, -0.4f);
 
+        speed = 0f;
+
+        // 빔 발사
         while (Time.time - startTime < 2.7f)
         {
             targetPos.y += 2.2f * Time.deltaTime;
@@ -122,6 +129,7 @@ public class Boss : MonoBehaviour
             yield return null;
         }
 
+        speed = originalSpeed;
         Destroy(beamInstance);
         yield return null;
     }
@@ -144,6 +152,13 @@ public class Boss : MonoBehaviour
 
         yield return null;
     }
+
+    public void GetClosertoPlayer()
+    {
+        transform.Translate(0f, 0f, -speed * Time.deltaTime);
+    }
+
+    //public void SetSpeed(float speed) { this.speed = speed; }
 }
 /*
 IEnumerator UsePattern()

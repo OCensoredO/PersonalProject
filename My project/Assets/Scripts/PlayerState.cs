@@ -8,13 +8,13 @@ public enum PMsg
 }
 
 
-public abstract class PlayerState : State<PMsg>
+public abstract class PlayerState : IState<PMsg>
 {
     protected PlayerController playerController;
 
     public PlayerState(PlayerController playerController) { this.playerController = playerController; }
 
-    public virtual State<PMsg> HandleInput()
+    public virtual IState<PMsg> HandleInput()
     {
         // 조준 모드 전환
         if (Input.GetKeyDown(KeyCode.D))
@@ -30,7 +30,7 @@ public abstract class PlayerState : State<PMsg>
     public virtual void Enter() { return; }
     public virtual void Execute() { return; }
     public virtual void Exit() { return; }
-    public virtual State<PMsg> OnMessaged(PMsg pmsg) { return null; }
+    public virtual IState<PMsg> OnMessaged(PMsg pmsg) { return null; }
 }
 
 
@@ -50,9 +50,9 @@ public class IdlePlayerState : PlayerState
 {
     public IdlePlayerState(PlayerController playerController) : base(playerController) { }
 
-    public override State<PMsg> HandleInput()
+    public override IState<PMsg> HandleInput()
     {
-        State<PMsg> nextState = base.HandleInput();
+        IState<PMsg> nextState = base.HandleInput();
         if (nextState != null) return nextState;
 
         if (Input.GetKeyDown(KeyCode.Space))
@@ -78,9 +78,9 @@ public class MovingPlayerState : PlayerState
         playerController.Move();
     }
 
-    public override State<PMsg> HandleInput()
+    public override IState<PMsg> HandleInput()
     {
-        State<PMsg> nextState = base.HandleInput();
+        IState<PMsg> nextState = base.HandleInput();
         if (nextState != null) return nextState;
 
         if (Input.GetKeyDown(KeyCode.Space))
@@ -101,7 +101,7 @@ public class JumpingPlayerState : PlayerTransientState
 
     public JumpingPlayerState(PlayerController playerController, PlayerState prevState) : base(playerController, prevState) { }
 
-    public override State<PMsg> HandleInput()
+    public override IState<PMsg> HandleInput()
     {
         nextState = (PlayerState)base.HandleInput();
         return nextState;
@@ -121,7 +121,7 @@ public class JumpingPlayerState : PlayerTransientState
         playerController.Move();
     }
     
-    public override State<PMsg> OnMessaged(PMsg pmsg)
+    public override IState<PMsg> OnMessaged(PMsg pmsg)
     {
         switch (pmsg)
         {
@@ -138,7 +138,7 @@ public class ShootingPlayerState : PlayerTransientState
 {
     public ShootingPlayerState(PlayerController playerController, PlayerState prevState) : base(playerController, prevState) { }
 
-    public override State<PMsg> HandleInput()
+    public override IState<PMsg> HandleInput()
     {
         return prevState;
     }

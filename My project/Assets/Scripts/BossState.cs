@@ -15,7 +15,7 @@ public enum BMsg
     MeleeBoxExit
 }
 
-public abstract class BossState : State<BMsg>
+public abstract class BossState : IState<BMsg>
 {
     protected Color bColor;
     protected Boss boss;
@@ -25,7 +25,7 @@ public abstract class BossState : State<BMsg>
         this.boss = boss;
     }
 
-    public virtual State<BMsg> HandleInput()
+    public virtual IState<BMsg> HandleInput()
     {
         // 상태 전이가 일어나지 않음
         return null;
@@ -39,7 +39,7 @@ public abstract class BossState : State<BMsg>
     public virtual void Execute() { return; }
 
     public virtual void Exit() { return; }
-    public virtual State<BMsg> OnMessaged(BMsg msg)
+    public virtual IState<BMsg> OnMessaged(BMsg msg)
     {
         switch(msg)
         {
@@ -73,7 +73,7 @@ public abstract class BossTransientState : BossState
         startTime = Time.time;
     }
 
-    public override State<BMsg> HandleInput()
+    public override IState<BMsg> HandleInput()
     {
         if (Time.time - startTime < duration) return null;
         //return prevState;
@@ -82,13 +82,42 @@ public abstract class BossTransientState : BossState
 }
 
 
+public abstract class BossBattleState : BossState
+{
+    protected float _coolTime;
+    protected float _startTime;
+    protected float _elapsedTimeAfterTransition;
+
+    public BossBattleState(Boss boss, float startTime = 0f, float elapsedTimeAfterTransition = 0f) : base(boss)
+    {
+        _startTime = startTime;
+        _elapsedTimeAfterTransition = elapsedTimeAfterTransition;
+    }
+
+    public override void Execute()
+    {
+        base.Execute();
+        Debug.Log(Time.time - _startTime + _elapsedTimeAfterTransition);
+        boss.GetClosertoPlayer();
+
+        if (Time.time - _startTime + _elapsedTimeAfterTransition < _coolTime) return;
+
+        usePattern();
+        _startTime = Time.time;
+        _elapsedTimeAfterTransition = 0f;
+    }
+
+    protected virtual void usePattern() { return; }
+}
+
+
 public class IdleBossState : BossState
 {
     public IdleBossState(Boss boss) : base(boss) { bColor = Color.cyan; }
 
-    public override State<BMsg> OnMessaged(BMsg msg)
+    public override IState<BMsg> OnMessaged(BMsg msg)
     {
-        State<BMsg> nextState = base.OnMessaged(msg);
+        IState<BMsg> nextState = base.OnMessaged(msg);
         if (nextState != null) return base.OnMessaged(msg);
 
         switch(msg)
@@ -106,9 +135,9 @@ public class BewaringBossState : BossState
 {
     public BewaringBossState(Boss boss) : base(boss) { bColor = Color.blue ; }
 
-    public override State<BMsg> OnMessaged(BMsg msg)
+    public override IState<BMsg> OnMessaged(BMsg msg)
     {
-        State<BMsg> nextState = base.OnMessaged(msg);
+        IState<BMsg> nextState = base.OnMessaged(msg);
         if (nextState != null) return base.OnMessaged(msg);
 
         switch (msg)
@@ -137,13 +166,13 @@ public class MonitoringBossState : BossTransientState
     }
 
     // 이전 상태를 리턴하는 대신 다음 상태를 리턴해야 하므로 재정의
-    public override State<BMsg> HandleInput()
+    public override IState<BMsg> HandleInput()
     {
         if (Time.time - startTime < duration) return null;
         return nextState;
     }
 
-    public override State<BMsg> OnMessaged(BMsg msg)
+    public override IState<BMsg> OnMessaged(BMsg msg)
     {
         BossState state = (BossState)base.OnMessaged(msg);
         if (state != null) return state;
@@ -162,21 +191,23 @@ public class MonitoringBossState : BossTransientState
 }
 */
 
-public class MeleeBossState : BossState
+public class MeleeBossState : BossBattleState
 {
+    /*
     private float _coolTime;
     private float _startTime;
     private float _elapsedTimeAfterTransition;
+    */
 
-    public MeleeBossState(Boss boss, float startTime = 0f, float elapsedTimeAfterTransition = 0f) : base(boss)
+    public MeleeBossState(Boss boss, float startTime = 0f, float elapsedTimeAfterTransition = 0f) : base(boss, startTime, elapsedTimeAfterTransition)
     {
         bColor = Color.red;
         _coolTime = 4.0f;
-        _startTime = startTime;
-        _elapsedTimeAfterTransition = elapsedTimeAfterTransition;
+        //_startTime = startTime;
+        //_elapsedTimeAfterTransition = elapsedTimeAfterTransition;
     }
 
-
+    /*
     public override void Execute()
     {
         base.Execute();
@@ -188,9 +219,9 @@ public class MeleeBossState : BossState
         _startTime = Time.time;
         _elapsedTimeAfterTransition = 0f;
     }
+    */
 
-
-    public override State<BMsg> OnMessaged(BMsg msg)
+    public override IState<BMsg> OnMessaged(BMsg msg)
     {
         BossState state = (BossState)base.OnMessaged(msg);
         if (state != null) return state;
@@ -203,23 +234,31 @@ public class MeleeBossState : BossState
 
         return null;
     }
+
+    protected override void usePattern()
+    {
+        //boss.UseMeleePattern();
+    }
 }
 
 
-public class RemoteBossState : BossState
+public class RemoteBossState : BossBattleState
 {
+    /*
     private float _coolTime;
     private float _startTime;
     private float _elapsedTimeAfterTransition;
+    */
 
-    public RemoteBossState(Boss boss, float startTime = 0f, float elapsedTimeAfterTransition = 0f) : base(boss)
+    public RemoteBossState(Boss boss, float startTime = 0f, float elapsedTimeAfterTransition = 0f) : base(boss, startTime, elapsedTimeAfterTransition)
     {
         bColor = Color.grey;
         _coolTime = 6.0f;
-        _startTime = startTime;
-        _elapsedTimeAfterTransition = elapsedTimeAfterTransition;
+        //_startTime = startTime;
+        //_elapsedTimeAfterTransition = elapsedTimeAfterTransition;
     }
 
+    /*
     public override void Execute()
     {
         base.Execute();
@@ -231,8 +270,8 @@ public class RemoteBossState : BossState
         _startTime = Time.time;
         _elapsedTimeAfterTransition = 0f;
     }
-
-    public override State<BMsg> OnMessaged(BMsg msg)
+    */
+    public override IState<BMsg> OnMessaged(BMsg msg)
     {
         BossState state = (BossState)base.OnMessaged(msg);
         if (state != null) return state;
@@ -244,6 +283,11 @@ public class RemoteBossState : BossState
         }
 
         return null;
+    }
+
+    protected override void usePattern()
+    {
+        boss.UseRemotePattern();
     }
 }
 
@@ -279,7 +323,7 @@ public class RetreatingBossState : BossTransientState
         boss.Heal();
     }
 
-    public override State<BMsg> OnMessaged(BMsg msg)
+    public override IState<BMsg> OnMessaged(BMsg msg)
     {
         switch (msg)
         {
