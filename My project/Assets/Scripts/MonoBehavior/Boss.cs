@@ -9,7 +9,8 @@ public class Boss : MonoBehaviour
     private float speed;
 
     private DataManager dMan;
-    new Renderer renderer;
+    private new Renderer renderer;
+    private GameObject playerObj;
 
     private FSM<BMsg> bossFSM;
 
@@ -19,12 +20,16 @@ public class Boss : MonoBehaviour
         hp = 20;
         speed = 2f;
         dMan = GameObject.FindGameObjectWithTag("GameManager").GetComponent<DataManager>();
+        playerObj = GameObject.FindGameObjectWithTag("Player");
 
         // 시연용 기능인 SetColor()를 위해 임시로 선언한 변수
         renderer = GetComponent<Renderer>();
 
         bossFSM = new FSM<BMsg>();
         bossFSM.Start(new IdleBossState(this));
+
+        // 임시
+        StartCoroutine(aim());
     }
 
     public void Update()
@@ -91,6 +96,7 @@ public class Boss : MonoBehaviour
         }
     }
 
+    /*
     public void ShootBeam()
     {
         //GameObject beamPrefab = Resources.Load(dMan.gameData.enemyBullets[0].prefab) as GameObject;
@@ -103,6 +109,7 @@ public class Boss : MonoBehaviour
         //StartCoroutine(shootBeam());
         StartCoroutine(generateLaserBox());
     }
+    */
 
     private IEnumerator shootBeam()
     {
@@ -153,11 +160,57 @@ public class Boss : MonoBehaviour
         yield return null;
     }
 
+    private IEnumerator aimAndShoot()
+    {
+        yield return null;
+    }
+
+    private IEnumerator aim()
+    {
+        Vector3? prevPos = null;
+        Vector3? currPos = null;
+        while(true)
+        {
+            if (!prevPos.HasValue)
+            {
+                prevPos = playerObj.transform.position;
+                yield return null;
+            }
+            currPos = playerObj.transform.position;
+            Vector3 predictedPlayerDirection = ((Vector3)(currPos - prevPos)).normalized;
+
+            Ray ray = new Ray();
+            ray.origin = transform.position - new Vector3(0f, 0f, transform.localScale.z * 0.51f);
+
+            Vector3 targetPos = predictPlayerPos(predictedPlayerDirection, 0.3f);
+            ray.direction = targetPos;
+
+            LineRenderer lineRenderer = GetComponent<LineRenderer>();
+            lineRenderer.startColor = Color.red;
+            lineRenderer.endColor = Color.yellow;
+            lineRenderer.startWidth = 0.1f;
+            lineRenderer.endWidth = 0.1f;
+
+            lineRenderer.SetPosition(0, ray.origin);
+            lineRenderer.SetPosition(1, targetPos);
+
+            Debug.Log(targetPos);
+            prevPos = playerObj.transform.position;
+            yield return null;
+        }
+    }
+
     public void GetClosertoPlayer()
     {
         transform.Translate(0f, 0f, -speed * Time.deltaTime);
     }
 
+    public Vector3 predictPlayerPos(Vector3 playerDirection, float delaySecond)
+    {
+        // 딜레이 = delaySecond / deltatime
+        // 속력 = 플레이어 스피드(일단 대충 줌)
+        return playerObj.transform.position + (16f * playerDirection * delaySecond);
+    }
     //public void SetSpeed(float speed) { this.speed = speed; }
 }
 /*
