@@ -97,7 +97,7 @@ public abstract class BossBattleState : BossState
     public override void Execute()
     {
         base.Execute();
-        Debug.Log(Time.time - _startTime + _elapsedTimeAfterTransition);
+        //Debug.Log(Time.time - _startTime + _elapsedTimeAfterTransition);
         boss.GetClosertoPlayer();
 
         if (Time.time - _startTime + _elapsedTimeAfterTransition < _coolTime) return;

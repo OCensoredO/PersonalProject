@@ -4,7 +4,7 @@ using UnityEngine;
 
 public class PlayerController : MonoBehaviour
 {
-    public const int playerSpeed = 16;
+    public const int playerSpeed = 8;
     private const int jumpForce = 800;
 
     private FSM<PMsg> playerFSM;
@@ -35,6 +35,7 @@ public class PlayerController : MonoBehaviour
     }
 
     public int GetPlayerSpeed() { return playerSpeed; }
+    public float GetYVel() { return rd.velocity.y; }
 
     public void Move()
     {
