@@ -4,7 +4,7 @@ using UnityEngine;
 
 public class PlayerController : MonoBehaviour
 {
-    private const int playerSpeed = 16;
+    public const int playerSpeed = 16;
     private const int jumpForce = 800;
 
     private FSM<PMsg> playerFSM;
@@ -33,6 +33,8 @@ public class PlayerController : MonoBehaviour
         playerFSM.ManageState();
         //playerFSM.PrintLog();
     }
+
+    public int GetPlayerSpeed() { return playerSpeed; }
 
     public void Move()
     {

@@ -96,21 +96,6 @@ public class Boss : MonoBehaviour
         }
     }
 
-    /*
-    public void ShootBeam()
-    {
-        //GameObject beamPrefab = Resources.Load(dMan.gameData.enemyBullets[0].prefab) as GameObject;
-        //GameObject beamInstance;
-        //beamInstance = Instantiate(beamPrefab, transform.position, transform.rotation);
-        //beamInstance.transform.parent = transform;
-        //Debug.Log(beamInstance.transform.parent.name);
-        //Instantiate(beamInstance);
-
-        //StartCoroutine(shootBeam());
-        StartCoroutine(generateLaserBox());
-    }
-    */
-
     private IEnumerator shootBeam()
     {
         float startTime = Time.time;
@@ -167,8 +152,10 @@ public class Boss : MonoBehaviour
 
     private IEnumerator aim()
     {
+        // 1틱 전 위치와 현재 위치를 비교해 다음 좌표를 예측
         Vector3? prevPos = null;
         Vector3? currPos = null;
+
         while(true)
         {
             if (!prevPos.HasValue)
@@ -177,26 +164,23 @@ public class Boss : MonoBehaviour
                 yield return null;
             }
             currPos = playerObj.transform.position;
-            Vector3 predictedPlayerDirection = ((Vector3)(currPos - prevPos)).normalized;
 
+            // 임시 조정
+            Vector3 predictedPlayerDirection = ((Vector3)(currPos - prevPos)).normalized;
+            predictedPlayerDirection.x = getSign((int)predictedPlayerDirection.x);
+            predictedPlayerDirection.z = getSign((int)predictedPlayerDirection.z);
+
+            // 예측 위치를 추적하는 레이 생성
             Ray ray = new Ray();
             ray.origin = transform.position - new Vector3(0f, 0f, transform.localScale.z * 0.51f);
-
-            Vector3 targetPos = predictPlayerPos(predictedPlayerDirection, 0.3f);
+            Vector3 targetPos = predictPos(predictedPlayerDirection, 0.3f);
             ray.direction = targetPos;
 
-            LineRenderer lineRenderer = GetComponent<LineRenderer>();
-            lineRenderer.startColor = Color.red;
-            lineRenderer.endColor = Color.yellow;
-            lineRenderer.startWidth = 0.1f;
-            lineRenderer.endWidth = 0.1f;
-
-            lineRenderer.SetPosition(0, ray.origin);
-            lineRenderer.SetPosition(1, targetPos);
-
-            Debug.Log(targetPos);
+            // 디버깅하기 위해 레이를 직선으로 렌더링
+            renderLine(ray.origin, targetPos);
+            
             prevPos = playerObj.transform.position;
-            yield return null;
+            yield return new WaitForSeconds(0.5f);
         }
     }
 
@@ -205,70 +189,43 @@ public class Boss : MonoBehaviour
         transform.Translate(0f, 0f, -speed * Time.deltaTime);
     }
 
-    public Vector3 predictPlayerPos(Vector3 playerDirection, float delaySecond)
+    public Vector3 predictPos(Vector3 playerDirection, float delaySecond)
     {
         // 딜레이 = delaySecond / deltatime
         // 속력 = 플레이어 스피드(일단 대충 줌)
-        return playerObj.transform.position + (16f * playerDirection * delaySecond);
+        float predictedXVel = 16f * playerDirection.x;
+
+        float predictedYVel = 0f;
+        float currYVel = playerObj.GetComponent<Rigidbody>().velocity.y;
+        if (currYVel != 0f) predictedYVel = currYVel + Physics.gravity.y * delaySecond;
+
+        float predictedZVel = 16f * playerDirection.z;
+
+        Vector3 predictedPlayerPos = playerObj.transform.position + new Vector3(predictedXVel, predictedYVel, predictedZVel) * delaySecond;
+        if (predictedPlayerPos.y < 0f) predictedPlayerPos.y = 0f;
+        //return playerObj.transform.position + new Vector3(16f * playerDirection.x * delaySecond, 0, 16f * playerDirection.z * delaySecond);
+        return predictedPlayerPos;
     }
-    //public void SetSpeed(float speed) { this.speed = speed; }
-}
-/*
-IEnumerator UsePattern()
-{
-    while (true)
+
+    private void renderLine(Vector3 pos0, Vector3 pos1)
     {
-        // 상태 전이 시, 상태 진입할 때 해야 할 작업 수행
-        // 게임 시작 시에는 Idle로 시작, 전이 X
-        //if (ChangeState())  state.Enter();
-        //state.Execute();
-
-        yield return new WaitForSeconds(4.0f);
+        LineRenderer lineRenderer = GetComponent<LineRenderer>();
+        lineRenderer.startColor = Color.red;
+        lineRenderer.endColor = Color.yellow;
+        lineRenderer.startWidth = 0.1f;
+        lineRenderer.endWidth = 0.1f;
+        lineRenderer.SetPosition(0, pos0);
+        lineRenderer.SetPosition(1, pos1);
     }
 
+    private int getSign(int value)
+    {
+        int res;
+
+        if (value > 0) res = 1;
+        else if (value == 0) res = 0;
+        else res = -1;
+
+        return res;
+    }
 }
-*/
-
-/*
-            switch (state)
-            {
-                case "idle":
-                    // idle일 때, 거리가 멀면 동작이 끝나면서 remote 상태로 전이
-                    Debug.Log("쉬는 중...");
-                    state = "remote";
-                    break;
-                case "melee":
-                    Debug.Log("가까이서 공격");
-                    state = "idle";
-                    break;
-                case "remote":
-                    Debug.Log("멀리서 사격");
-                    state = "idle";
-                    break;
-                case "retreat":
-                    Debug.Log("후퇴!");
-                    break;
-                default:
-                    break;
-            }
-
-            Debug.Log(state);
-            */
-
-/*
-int patternNum = Random.Range(0, 3);
-switch (patternNum)
-{
-    case 0:
-        Debug.Log("탄막 뿌리기1");
-        break;
-    case 1:
-        Debug.Log("탄막 뿌리기2");
-        break;
-    case 2:
-        Debug.Log("레이저");
-        break;
-    default:
-        break;
-}
-*/
