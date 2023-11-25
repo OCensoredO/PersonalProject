@@ -50,6 +50,12 @@ public class IdlePlayerState : PlayerState
 {
     public IdlePlayerState(PlayerController playerController) : base(playerController) { }
 
+    public override void Enter()
+    {
+        base.Enter();
+        playerController.Stop();
+    }
+
     public override IState<PMsg> HandleInput()
     {
         IState<PMsg> nextState = base.HandleInput();
@@ -59,12 +65,9 @@ public class IdlePlayerState : PlayerState
             return new JumpingPlayerState(playerController, this);
 
         if (Input.GetAxisRaw("Horizontal") != 0.0f || Input.GetAxisRaw("Vertical") != 0.0f)
-        {
             return new MovingPlayerState(playerController);
-        }
 
         return null;
-        //return nextState;
     }
 }
 

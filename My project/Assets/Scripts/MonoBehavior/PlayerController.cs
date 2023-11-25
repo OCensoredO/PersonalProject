@@ -15,6 +15,9 @@ public class PlayerController : MonoBehaviour
     private bool isTargetting;
     //private Vector3 movingDirection;
 
+    private delegate void PhysicsOp();
+    private List<PhysicsOp> physicsOps;
+
     private void Start()
     {
         isTargetting = true;
@@ -25,6 +28,8 @@ public class PlayerController : MonoBehaviour
         playerFSM = new FSM<PMsg>();
         playerFSM.Start(new IdlePlayerState(this));
 
+        physicsOps = new List<PhysicsOp>();
+
         //movingDirection = Vector3.zero;
     }
 
@@ -34,21 +39,24 @@ public class PlayerController : MonoBehaviour
         //playerFSM.PrintLog();
     }
 
+    private void FixedUpdate()
+    {
+        foreach (var physicsOp in physicsOps)
+            physicsOp();
+        physicsOps.Clear();
+    }
+
     public int GetPlayerSpeed() { return playerSpeed; }
     public float GetYVel() { return rd.velocity.y; }
 
-    public void Move()
+    public void Move() { physicsOps.Add(moveOp); }
+
+    private void moveOp()
     {
         Vector3 direction = setDirection();
-        //movingDirection = setDirection();
 
         // 이동
-        //gameObject.transform.position += direction * playerSpeed * Time.deltaTime;
-        //rd.AddForce(direction * playerSpeed * Time.deltaTime);
-        //rd.velocity = direction * 5; //playerSpeed * Time.deltaTime;
-        //rd.velocity = new Vector3(direction.x * 5, rd.velocity.y, direction.z * 5);
-        // 이거 FixedUpdated로 빼는 것 고려중
-        Vector3 playerVel = direction * playerSpeed / 60;
+        Vector3 playerVel = direction * playerSpeed * Time.deltaTime;
         rd.velocity = new Vector3(playerVel.x, rd.velocity.y, playerVel.z);
     }
 
@@ -72,7 +80,9 @@ public class PlayerController : MonoBehaviour
         return direction;
     }
 
-    public void Jump()
+    public void Jump() { physicsOps.Add(jumpOp); }
+
+    private void jumpOp()
     {
         rd.AddForce(jumpForce * Vector3.up);
     }
@@ -101,6 +111,8 @@ public class PlayerController : MonoBehaviour
     }
 
     public void ToggleTargettingMode() { isTargetting = !isTargetting; }
+
+    public void Stop() { rd.velocity = new Vector3(0f, rd.velocity.y, 0f); }
 
     private void OnCollisionEnter(Collision collision)
     {

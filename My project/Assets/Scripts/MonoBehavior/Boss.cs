@@ -197,7 +197,7 @@ public class Boss : MonoBehaviour
             prevPos = playerObj.transform.position;
             yield return new WaitForSeconds(0.7f);
 
-            Debug.Log("Shoot");
+            //Debug.Log("Shoot");
             beamInstance = Instantiate(beamPrefab, transform.position, transform.rotation);
             float z = beamInstance.gameObject.transform.localScale.z;
             beamInstance.gameObject.transform.localScale = new Vector3(0.1f, 0.1f, z);
