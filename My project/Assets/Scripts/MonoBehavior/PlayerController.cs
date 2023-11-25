@@ -4,7 +4,7 @@ using UnityEngine;
 
 public class PlayerController : MonoBehaviour
 {
-    public const int playerSpeed = 8;
+    public const int playerSpeed = 500;
     private const int jumpForce = 800;
 
     private FSM<PMsg> playerFSM;
@@ -43,7 +43,13 @@ public class PlayerController : MonoBehaviour
         //movingDirection = setDirection();
 
         // 이동
-        gameObject.transform.position += direction * playerSpeed * Time.deltaTime;
+        //gameObject.transform.position += direction * playerSpeed * Time.deltaTime;
+        //rd.AddForce(direction * playerSpeed * Time.deltaTime);
+        //rd.velocity = direction * 5; //playerSpeed * Time.deltaTime;
+        //rd.velocity = new Vector3(direction.x * 5, rd.velocity.y, direction.z * 5);
+        // 이거 FixedUpdated로 빼는 것 고려중
+        Vector3 playerVel = direction * playerSpeed / 60;
+        rd.velocity = new Vector3(playerVel.x, rd.velocity.y, playerVel.z);
     }
 
     private Vector3 setDirection()
