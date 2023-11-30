@@ -11,6 +11,7 @@ TagManager:
   - MeleeBox
   - BewareBox
   - MonitorBox
+  - EnemyAttack
   layers:
   - Default
   - TransparentFX

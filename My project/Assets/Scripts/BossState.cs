@@ -88,9 +88,9 @@ public abstract class BossBattleState : BossState
     protected float _startTime;
     protected float _elapsedTimeAfterTransition;
 
-    public BossBattleState(Boss boss, float startTime = 0f, float elapsedTimeAfterTransition = 0f) : base(boss)
+    public BossBattleState(Boss boss, float startTime = -1f, float elapsedTimeAfterTransition = 0f) : base(boss)
     {
-        _startTime = startTime;
+        _startTime = (startTime == -1f) ? Time.time : startTime;
         _elapsedTimeAfterTransition = elapsedTimeAfterTransition;
     }
 
@@ -146,80 +146,20 @@ public class BewaringBossState : BossState
                 return new IdleBossState(boss);
             case BMsg.MonitorBoxEnter:
                 //return new MonitoringBossState(boss, null, null);
-                return new RemoteBossState(boss);
+                return new RemoteBossState(boss, Time.time);
             default:
                 return null;
         }
     }
 }
 
-/*
-public class MonitoringBossState : BossTransientState
-{
-    public MonitoringBossState(Boss boss, BossState prevState, BossState nextState) : base(boss, prevState, nextState)
-    {
-        bColor = Color.yellow;
-        duration = 3.0f;
-
-        if (this.nextState == null)
-            this.nextState = new RemoteBossState(boss, this);
-    }
-
-    // 이전 상태를 리턴하는 대신 다음 상태를 리턴해야 하므로 재정의
-    public override IState<BMsg> HandleInput()
-    {
-        if (Time.time - startTime < duration) return null;
-        return nextState;
-    }
-
-    public override IState<BMsg> OnMessaged(BMsg msg)
-    {
-        BossState state = (BossState)base.OnMessaged(msg);
-        if (state != null) return state;
-
-        switch (msg)
-        {
-            case BMsg.MeleeBoxEnter:
-                nextState = new MeleeBossState(boss, this);
-                break;
-            case BMsg.MonitorBoxEnter:
-                nextState = new RemoteBossState(boss, this);
-                break;
-        }
-        return null;
-    }
-}
-*/
-
 public class MeleeBossState : BossBattleState
 {
-    /*
-    private float _coolTime;
-    private float _startTime;
-    private float _elapsedTimeAfterTransition;
-    */
-
-    public MeleeBossState(Boss boss, float startTime = 0f, float elapsedTimeAfterTransition = 0f) : base(boss, startTime, elapsedTimeAfterTransition)
+    public MeleeBossState(Boss boss, float startTime, float elapsedTimeAfterTransition = 0f) : base(boss, startTime, elapsedTimeAfterTransition)
     {
         bColor = Color.red;
         _coolTime = 4.0f;
-        //_startTime = startTime;
-        //_elapsedTimeAfterTransition = elapsedTimeAfterTransition;
     }
-
-    /*
-    public override void Execute()
-    {
-        base.Execute();
-        Debug.Log(Time.time - _startTime + _elapsedTimeAfterTransition);
-
-        if (Time.time - _startTime + _elapsedTimeAfterTransition < _coolTime) return;
-
-        //boss.UseMeleePattern();
-        _startTime = Time.time;
-        _elapsedTimeAfterTransition = 0f;
-    }
-    */
 
     public override IState<BMsg> OnMessaged(BMsg msg)
     {
@@ -244,33 +184,12 @@ public class MeleeBossState : BossBattleState
 
 public class RemoteBossState : BossBattleState
 {
-    /*
-    private float _coolTime;
-    private float _startTime;
-    private float _elapsedTimeAfterTransition;
-    */
-
-    public RemoteBossState(Boss boss, float startTime = 0f, float elapsedTimeAfterTransition = 0f) : base(boss, startTime, elapsedTimeAfterTransition)
+    public RemoteBossState(Boss boss, float startTime, float elapsedTimeAfterTransition = 0f) : base(boss, startTime, elapsedTimeAfterTransition)
     {
         bColor = Color.grey;
         _coolTime = 6.0f;
-        //_startTime = startTime;
-        //_elapsedTimeAfterTransition = elapsedTimeAfterTransition;
     }
 
-    /*
-    public override void Execute()
-    {
-        base.Execute();
-        Debug.Log(Time.time - _startTime + _elapsedTimeAfterTransition);
-
-        if (Time.time - _startTime + _elapsedTimeAfterTransition < _coolTime) return;
-
-        boss.UseRemotePattern();
-        _startTime = Time.time;
-        _elapsedTimeAfterTransition = 0f;
-    }
-    */
     public override IState<BMsg> OnMessaged(BMsg msg)
     {
         BossState state = (BossState)base.OnMessaged(msg);
@@ -306,12 +225,18 @@ public class DeadBossState : BossState
 
 public class RetreatingBossState : BossTransientState
 {
-    private const float healInterval = 1.0f;
+    private const float healInterval = 0.5f;
 
     public RetreatingBossState(Boss boss, BossState prevState) : base(boss, prevState)
     {
         bColor = Color.green;
         duration = 1000.0f;
+    }
+
+    public override void Enter()
+    {
+        base.Enter();
+        boss.StopPattern();
     }
 
     public override void Execute()

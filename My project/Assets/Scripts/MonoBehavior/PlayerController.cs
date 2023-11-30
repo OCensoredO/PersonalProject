@@ -13,14 +13,25 @@ public class PlayerController : MonoBehaviour
     private Rigidbody rd;
 
     private bool isTargetting;
-    //private Vector3 movingDirection;
+    public int hp { get; private set; }
 
     private delegate void PhysicsOp();
+    private delegate void TakeDamageOp(int damage);
+    private struct TakeDamageProcess
+    {
+        public TakeDamageOp takeDamageOp;
+        public int damage;
+    }
+
     private List<PhysicsOp> physicsOps;
+    //private List<FixedUpdateOp> fixedUpdateOps;
+    //private List<TakeDamageOp> takeDamageOps;
+    private List<TakeDamageProcess> takeDamageProcesses;
 
     private void Start()
     {
         isTargetting = true;
+        hp = 30;
         
         rd = GetComponent<Rigidbody>();
         dataManager = GameObject.FindGameObjectWithTag("GameManager").GetComponent<DataManager>();
@@ -29,8 +40,9 @@ public class PlayerController : MonoBehaviour
         playerFSM.Start(new IdlePlayerState(this));
 
         physicsOps = new List<PhysicsOp>();
-
-        //movingDirection = Vector3.zero;
+        takeDamageProcesses = new List<TakeDamageProcess>();
+        //takeDamageOps = new List<TakeDamageOp>();
+        //fixedUpdateOps = new List<FixedUpdateOp>();
     }
 
     private void Update()
@@ -44,6 +56,14 @@ public class PlayerController : MonoBehaviour
         foreach (var physicsOp in physicsOps)
             physicsOp();
         physicsOps.Clear();
+
+        foreach (var takeDamageProcess in takeDamageProcesses)
+            takeDamageProcess.takeDamageOp(takeDamageProcess.damage);
+        //foreach (var takeDamageOp in takeDamageOps)
+        //    takeDamageOp.Invoke();
+
+        //foreach (var fixedUpdateOp in fixedUpdateOps)
+        //    fixedUpdateOp();
     }
 
     public int GetPlayerSpeed() { return playerSpeed; }
@@ -114,9 +134,49 @@ public class PlayerController : MonoBehaviour
 
     public void Stop() { rd.velocity = new Vector3(0f, rd.velocity.y, 0f); }
 
+    // FixedUpdate에서 호출해야 함
+    public void TakeDamage(int damage) { hp -= damage; }
+
     private void OnCollisionEnter(Collision collision)
     {
         if (collision.gameObject.CompareTag("Ground"))
             playerFSM.SendMessage(PMsg.Land);
     }
+
+    private void OnTriggerEnter(Collider other)
+    {
+        if (!other.CompareTag("EnemyAttack")) return;
+
+        Hitbox hitbox = other.GetComponent<Hitbox>();
+        if (hitbox.IsContinuousDamagable())
+        {
+            //StartCoroutine(takeContinuosDmg(hitbox.GetDmg()));
+            //fixedUpdateOps.Add(TakeDamage);
+            //TakeDamageProcess
+            //takeDamageProcesses.Add();
+            return;
+        }
+        TakeDamage(hitbox.GetDmg());
+    }
+
+    private void OnTriggerExit(Collider other)
+    {
+        if (!other.CompareTag("EnemyAttack")) return;
+        //StopCoroutine(takeContinuosDmg);
+    }
+
+    private void takeContinuousDmg(int damage)
+    {
+
+    }
+    /*
+    private IEnumerator takeContinuosDmg(int damage)
+    {
+        while(true)
+        {
+            TakeDamage(damage);
+            yield return new WaitForFixedUpdate();
+        }
+    }
+    */
 }

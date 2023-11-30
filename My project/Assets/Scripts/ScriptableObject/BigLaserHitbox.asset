@@ -9,9 +9,9 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: e72c357a0ba52ea4198e1ec0e6aa3f64, type: 3}
-  m_Name: DefaultBullet
+  m_Script: {fileID: 11500000, guid: 528533755f041d44bb38873ad922eef9, type: 3}
+  m_Name: BigLaserHitbox
   m_EditorClassIdentifier: 
-  prefabName: DefaultBullet
-  speed: 1000
-  damage: 1
+  damage: 2
+  continuousDamagable: 1
+  attackType: 2

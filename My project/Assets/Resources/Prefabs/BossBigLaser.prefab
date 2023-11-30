@@ -12,9 +12,10 @@ GameObject:
   - component: {fileID: 7880103716249086542}
   - component: {fileID: 4468365923727204428}
   - component: {fileID: 3014136304671392465}
+  - component: {fileID: 8859012887897538979}
   m_Layer: 0
   m_Name: SampleLaser
-  m_TagString: Untagged
+  m_TagString: EnemyAttack
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -62,7 +63,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: 09cadc053a12e654593cac698ee80289, type: 2}
+  - {fileID: 2100000, guid: c399d4c22bb684c49a295830a5a999e3, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -98,6 +99,19 @@ CapsuleCollider:
   m_Height: 2
   m_Direction: 1
   m_Center: {x: 0.000000059604645, y: 0, z: -0.00000008940697}
+--- !u!114 &8859012887897538979
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4769277859320584883}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 183a243adb0d50749ba51dca6f502cf6, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  hitboxData: {fileID: 11400000, guid: 539af405de99a894faa6fad085dfe1ed, type: 2}
 --- !u!1 &7541860217544648855
 GameObject:
   m_ObjectHideFlags: 0

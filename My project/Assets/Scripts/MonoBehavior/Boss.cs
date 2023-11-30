@@ -7,6 +7,8 @@ public class Boss : MonoBehaviour
 {
     public int hp { get; private set; }
     private float speed;
+    private Coroutine patternCoroutine;
+    private IEnumerator[] patterns;
 
     private DataManager dMan;
     private new Renderer renderer;
@@ -18,9 +20,14 @@ public class Boss : MonoBehaviour
     // hp값은 임시로 지정한 값
     private void Start()
     {
-        hp = 20;
+        hp = 50;
         speed = 2f;
         dMan = GameObject.FindGameObjectWithTag("GameManager").GetComponent<DataManager>();
+
+        patterns = new IEnumerator[3];
+        patterns[0] = shootBeam();
+        patterns[1] = generateLaserBox();
+        patterns[2] = snipe();
         //playerObj = GameObject.FindGameObjectWithTag("Player");
 
         // 시연용 기능인 SetColor()를 위해 임시로 선언한 변수
@@ -39,7 +46,7 @@ public class Boss : MonoBehaviour
         bossFSM.ManageState();
         //bossFSM.PrintLog();
 
-        if (hp > 12)
+        if (hp > 20)
         {
             bossFSM.SendMessage(BMsg.EnoughHP);
             return;
@@ -49,7 +56,7 @@ public class Boss : MonoBehaviour
             bossFSM.SendMessage(BMsg.Die);
             return;
         }
-        if (hp < 8)
+        if (hp < 10)
         {
             bossFSM.SendMessage(BMsg.LowHP);
         }
@@ -82,24 +89,34 @@ public class Boss : MonoBehaviour
 
     public void UseRemotePattern()
     {
-        int patternNum = Random.Range(0, 2);
+        int patternNum = Random.Range(0, 3);
 
-        StartCoroutine(snipe());
-        /*
+        //patternCoroutine = snipe();
+        //StartCoroutine(snipe());
         switch (patternNum)
         {
             case 0:
                 Debug.Log("Beam");
-                StartCoroutine(shootBeam());
+                patternCoroutine = StartCoroutine(shootBeam());
+
                 break;
             case 1:
                 Debug.Log("Generate LaserBox");
-                StartCoroutine(generateLaserBox());
+                patternCoroutine = StartCoroutine(generateLaserBox());
+                break;
+            case 2:
+                Debug.Log("Snipe");
+                patternCoroutine = StartCoroutine(snipe());
                 break;
             default:
                 break;
         }
-        */
+    }
+
+    public void StopPattern()
+    {
+        if (patternCoroutine is null) return;
+        StopCoroutine(patternCoroutine);
     }
 
     private IEnumerator shootBeam()
@@ -134,7 +151,8 @@ public class Boss : MonoBehaviour
 
         // 빔 인스턴스 제거
         Destroy(beamInstance);
-        yield return null;
+        //StopCoroutine(patternCoroutine);
+        //yield return null;
     }
 
     private IEnumerator generateLaserBox()
@@ -154,6 +172,46 @@ public class Boss : MonoBehaviour
         }
 
         yield return null;
+    }
+
+    private IEnumerator aim()
+    {
+        float startTime = Time.time;
+
+        // 저격할 좌표, 직전 프레임/현 프레임에서의 플레이어 위치를 저장할 변수 선언
+        Vector3 targetPos;
+        Vector3 prevPos;
+        Vector3 currPos;
+
+        GameObject playerObj = GameObject.FindGameObjectWithTag("Player");
+        PlayerController pCon = playerObj.GetComponent<PlayerController>();
+
+        prevPos = playerObj.transform.position;
+        yield return null;
+
+        // 조준
+        while (true)
+        {
+            // 현 프레임에서의 플레이어 위치 구해서 currPos에 저장
+            currPos = playerObj.transform.position;
+
+            // 예측 이동 방향을 구해 플레이어가 이동할 위치 예측
+            Vector3 predictedPlayerDirection = (currPos - prevPos).normalized;
+            Debug.Log((currPos - prevPos));
+            targetPos = predictPosWithGravity(predictedPlayerDirection, playerObj.transform.position, pCon.GetYVel(), pCon.GetPlayerSpeed(), 0.4f);
+
+            // 예측 위치를 추적하는 레이 생성하여 직선으로 렌더링
+            Ray ray = new Ray();
+            ray.origin = transform.position - new Vector3(0f, 0f, transform.localScale.z * 0.51f);
+            ray.direction = targetPos;
+            renderLine(ray.origin, targetPos);
+
+            // 빔 발사 전까지 일정 시간 대기
+            yield return new WaitForFixedUpdate();
+
+            // prevPos 업데이트
+            prevPos = currPos;
+        }
     }
 
     private IEnumerator snipe()
@@ -176,20 +234,11 @@ public class Boss : MonoBehaviour
         GameObject beamInstance = null;
 
         prevPos = playerObj.transform.position;
-        yield return null;
+        yield return new WaitForFixedUpdate();
 
         // 조준-빔 발사 3회 반복
         while (repeatedCount < 3)
         {
-            // 조준
-            /*
-            // 첫 루프 때의 예외 상황(prevPos가 업데이트되지 않음) 처리
-            if (!prevPos.HasValue)
-            {
-                
-            }
-            */
-
             // 현 프레임에서의 플레이어 위치 구해서 currPos에 저장
             currPos = playerObj.transform.position;
 
@@ -203,11 +252,8 @@ public class Boss : MonoBehaviour
             ray.direction = targetPos;
             renderLine(ray.origin, targetPos);
 
-            // prevPos 업데이트
-            prevPos = currPos;
-
             // 빔 발사 전까지 일정 시간 대기
-            yield return new WaitForSeconds(0.7f);
+            yield return new WaitForSeconds(0.7f); 
 
             // 빔 발사
             // 빔 인스턴스 생성 및 크기/회전 조정
@@ -215,60 +261,25 @@ public class Boss : MonoBehaviour
             float z = beamInstance.gameObject.transform.localScale.z;
             beamInstance.gameObject.transform.localScale = new Vector3(0.1f, 0.1f, z);
             beamInstance.transform.LookAt(targetPos);
-            
+
             // 반복 횟수 1회 증가
             repeatedCount++;
 
             // 일정 시간동안 발사한 빔 지속
+            // 이 부분에서 대기하는 시간 때문에 가끔씩 플레이어 위치를 제대로 예측하지 못하는 문제 발생, 추후 수정 필요
             yield return new WaitForSeconds(0.7f);
+
             startTime = Time.time;
             Destroy(beamInstance);
+
+            // prevPos 업데이트
+            prevPos = currPos;
         }
 
         //Destroy(beamInstance);
         enableLineRenderer(false);
-        yield return null;
+        //StopCoroutine(patternCoroutine);
     }
-
-    /*
-    private IEnumerator aim()
-    {
-        // 1틱 전 위치와 현재 위치를 비교해 다음 좌표를 예측
-        Vector3? prevPos = null;
-        Vector3? currPos = null;
-        GameObject playerObj = GameObject.FindGameObjectWithTag("Player");
-        PlayerController pCon = playerObj.GetComponent<PlayerController>();
-
-        while (true)
-        {
-            if (!prevPos.HasValue)
-            {
-                prevPos = playerObj.transform.position;
-                yield return null;
-            }
-            currPos = playerObj.transform.position;
-
-            // 예측 이동 방향 구하기
-            Vector3 predictedPlayerDirection = new Vector3();
-            predictedPlayerDirection.x = Input.GetAxisRaw("Horizontal");
-            predictedPlayerDirection.y = ((Vector3)(currPos - prevPos)).normalized.y;
-            predictedPlayerDirection.z = Input.GetAxisRaw("Vertical");
-            
-            Vector3 targetPos = predictPosWithGravity(predictedPlayerDirection, playerObj.transform.position, pCon.GetYVel(), pCon.GetPlayerSpeed(), 0.3f);
-
-            // 예측 위치를 추적하는 레이 생성
-            Ray ray = new Ray();
-            ray.origin = transform.position - new Vector3(0f, 0f, transform.localScale.z * 0.51f);
-            ray.direction = targetPos;
-
-            // 디버깅하기 위해 레이를 직선으로 렌더링
-            renderLine(ray.origin, targetPos);
-            
-            prevPos = playerObj.transform.position;
-            yield return null;
-        }
-    }
-    */
 
     public void GetClosertoPlayer()
     {
@@ -303,6 +314,7 @@ public class Boss : MonoBehaviour
     }
 
     private void enableLineRenderer(bool isEnabled) { lineRenderer.enabled = isEnabled; }
+
     /*
     private int getSign(int value)
     {
