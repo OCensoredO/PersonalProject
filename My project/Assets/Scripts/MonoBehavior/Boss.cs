@@ -8,7 +8,7 @@ public class Boss : MonoBehaviour
     public int hp { get; private set; }
     private float speed;
     private Coroutine patternCoroutine;
-    private IEnumerator[] patterns;
+    //private IEnumerator[] patterns;
 
     private DataManager dMan;
     private new Renderer renderer;
@@ -17,6 +17,9 @@ public class Boss : MonoBehaviour
 
     private FSM<BMsg> bossFSM;
 
+    private delegate void UpdateGameStatus(int dmg);
+    private UpdateGameStatus updateGameStatus;
+
     // hp값은 임시로 지정한 값
     private void Start()
     {
@@ -24,15 +27,17 @@ public class Boss : MonoBehaviour
         speed = 2f;
         dMan = GameObject.FindGameObjectWithTag("GameManager").GetComponent<DataManager>();
 
-        patterns = new IEnumerator[3];
-        patterns[0] = shootBeam();
-        patterns[1] = generateLaserBox();
-        patterns[2] = snipe();
+        //patterns = new IEnumerator[3];
+        //patterns[0] = shootBeam();
+        //patterns[1] = generateLaserBox();
+        //patterns[2] = snipe();
         //playerObj = GameObject.FindGameObjectWithTag("Player");
 
         // 시연용 기능인 SetColor()를 위해 임시로 선언한 변수
         renderer = GetComponent<Renderer>();
         lineRenderer = GetComponent<LineRenderer>();
+
+        updateGameStatus = GameObject.FindGameObjectWithTag("GameManager").GetComponent<GameManager>().UpdateStatus;
 
         bossFSM = new FSM<BMsg>();
         bossFSM.Start(new IdleBossState(this));
@@ -71,7 +76,9 @@ public class Boss : MonoBehaviour
     {
         if (other.tag != "Bullet") return;
         // 인덱스값은 임시로 0으로 둠
-        hp -= dMan.gameData.bullets[0].damage;
+        int dmg = dMan.gameData.bullets[0].damage;
+        hp -= dmg;
+        updateGameStatus.Invoke(dmg);
     }
 
     public void Heal() { hp++; }
@@ -315,12 +322,4 @@ public class Boss : MonoBehaviour
 
     private void enableLineRenderer(bool isEnabled) { lineRenderer.enabled = isEnabled; }
 
-    /*
-    private int getSign(int value)
-    {
-        if (value > 0) return 1;
-        if (value == 0) return 0;
-        return -1;
-    }
-    */
 }
