@@ -4,7 +4,8 @@ using UnityEngine;
 
 public enum PMsg
 {
-    Land
+    Land,
+    Dead
 }
 
 
@@ -24,13 +25,25 @@ public abstract class PlayerState : IState<PMsg>
         if (Input.GetKeyDown(KeyCode.F))
             return new ShootingPlayerState(playerController, this);
 
+        if (Input.GetKeyDown(KeyCode.Backspace))
+            return new DeadPlayerState(playerController);
+
         return null;
     }
 
     public virtual void Enter() { return; }
     public virtual void Execute() { return; }
     public virtual void Exit() { return; }
-    public virtual IState<PMsg> OnMessaged(PMsg pmsg) { return null; }
+    public virtual IState<PMsg> OnMessaged(PMsg pmsg)
+    {
+        switch (pmsg)
+        {
+            case PMsg.Dead:
+                return new DeadPlayerState(playerController);
+            default:
+                return null;
+        }
+    }
 }
 
 
@@ -126,6 +139,9 @@ public class JumpingPlayerState : PlayerTransientState
     
     public override IState<PMsg> OnMessaged(PMsg pmsg)
     {
+        IState<PMsg> nextState = base.OnMessaged(pmsg);
+        if (nextState != null) return nextState;
+
         switch (pmsg)
         {
             case PMsg.Land:
@@ -150,5 +166,17 @@ public class ShootingPlayerState : PlayerTransientState
     {
         base.Enter();
         playerController.Shoot();
+    }
+}
+
+public class DeadPlayerState : PlayerState
+{
+    public DeadPlayerState(PlayerController playerController) : base(playerController) { }
+
+    public override IState<PMsg> HandleInput() { return null; }
+
+    public override void Enter()
+    {
+        playerController.Explode();
     }
 }

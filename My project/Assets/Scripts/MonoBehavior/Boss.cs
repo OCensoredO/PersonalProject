@@ -99,7 +99,8 @@ public class Boss : MonoBehaviour
         int patternNum = Random.Range(0, 3);
 
         //patternCoroutine = snipe();
-        //StartCoroutine(snipe());
+        StartCoroutine(shootBeam());
+        /*
         switch (patternNum)
         {
             case 0:
@@ -118,6 +119,7 @@ public class Boss : MonoBehaviour
             default:
                 break;
         }
+        */
     }
 
     public void StopPattern()

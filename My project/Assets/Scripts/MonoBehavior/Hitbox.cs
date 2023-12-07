@@ -9,6 +9,6 @@ public class Hitbox : MonoBehaviour
     public HitboxData HitboxData { set { hitboxData = value; } }
 
     public int GetDmg()                 { return hitboxData.damage; }
-    public bool IsContinuousDamagable() { return hitboxData.continuousDamagable; }
+    public int GetKB() { return hitboxData.knockBack; }
     public AttackType GetAttackType()   { return hitboxData.attackType; }
 }

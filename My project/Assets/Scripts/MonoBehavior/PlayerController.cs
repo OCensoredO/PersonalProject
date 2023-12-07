@@ -11,6 +11,7 @@ public class PlayerController : MonoBehaviour
 
     private DataManager dataManager;
     private Rigidbody rd;
+    public new ParticleSystem particleSystem;
 
     private bool isTargetting;
     public int hp { get; private set; }
@@ -49,6 +50,7 @@ public class PlayerController : MonoBehaviour
     {
         playerFSM.ManageState();
         //playerFSM.PrintLog();
+        if (hp <= 0) playerFSM.SendMessage(PMsg.Dead);
     }
 
     private void FixedUpdate()
@@ -135,7 +137,15 @@ public class PlayerController : MonoBehaviour
     public void Stop() { rd.velocity = new Vector3(0f, rd.velocity.y, 0f); }
 
     // FixedUpdate에서 호출해야 함
-    public void TakeDamage(int damage) { hp -= damage; }
+    public void TakeDamage(int damage)
+    {
+        Debug.Log("curr HP: " + hp);
+        hp -= damage;
+        Collider coll = GetComponent<Collider>();
+        coll.enabled = false;
+        coll.enabled = true;
+
+    }
 
     private void OnCollisionEnter(Collision collision)
     {
@@ -148,6 +158,7 @@ public class PlayerController : MonoBehaviour
         if (!other.CompareTag("EnemyAttack")) return;
 
         Hitbox hitbox = other.GetComponent<Hitbox>();
+        /*
         if (hitbox.IsContinuousDamagable())
         {
             //StartCoroutine(takeContinuosDmg(hitbox.GetDmg()));
@@ -156,6 +167,7 @@ public class PlayerController : MonoBehaviour
             //takeDamageProcesses.Add();
             return;
         }
+        */
         TakeDamage(hitbox.GetDmg());
     }
 
@@ -168,6 +180,14 @@ public class PlayerController : MonoBehaviour
     private void takeContinuousDmg(int damage)
     {
 
+    }
+
+    public void Explode()
+    {
+        ParticleSystem explosionFx = Instantiate(particleSystem, transform.position, transform.rotation);
+        Destroy(explosionFx, 3f);
+        Destroy(gameObject);
+        GameObject.FindGameObjectWithTag("UI").GetComponent<UIAnimation>().PlayAnimation();
     }
     /*
     private IEnumerator takeContinuosDmg(int damage)

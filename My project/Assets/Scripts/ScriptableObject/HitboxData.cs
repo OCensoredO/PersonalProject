@@ -15,7 +15,7 @@ public class HitboxData : ScriptableObject
     public int damage;
 
     [SerializeField]
-    public bool continuousDamagable;
+    public int knockBack;
 
     [SerializeField]
     public AttackType attackType;

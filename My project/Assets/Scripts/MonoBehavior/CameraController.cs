@@ -16,7 +16,8 @@ public class CameraController : MonoBehaviour
 
     void Update()
     {
-        //this.transform.LookAt(playerObject.transform);
-        this.transform.position = cameraPositionOffset + new Vector3(0.0f, 0.0f, playerObject.transform.position.z);
+        if (playerObject == null) return;
+        
+        transform.position = cameraPositionOffset + new Vector3(0.0f, 0.0f, playerObject.transform.position.z);
     }
 }

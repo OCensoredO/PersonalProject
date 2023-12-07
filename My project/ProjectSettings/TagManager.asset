@@ -12,6 +12,7 @@ TagManager:
   - BewareBox
   - MonitorBox
   - EnemyAttack
+  - UI
   layers:
   - Default
   - TransparentFX

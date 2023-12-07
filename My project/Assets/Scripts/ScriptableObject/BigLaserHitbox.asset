@@ -12,6 +12,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 528533755f041d44bb38873ad922eef9, type: 3}
   m_Name: BigLaserHitbox
   m_EditorClassIdentifier: 
-  damage: 2
-  continuousDamagable: 1
+  damage: 7
+  knockBack: 0
   attackType: 2
