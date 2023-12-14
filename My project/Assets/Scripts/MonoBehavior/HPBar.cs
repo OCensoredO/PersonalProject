@@ -5,20 +5,8 @@ using UnityEngine.UI;
 
 public class HPBar : MonoBehaviour
 {
-    public GameObject boss;
-    float bossMaxHP;
-
-    void Start()
+    public void UpdateHp(int hp, int maxHp)
     {
-        boss = GameObject.FindGameObjectWithTag("Boss");
-        bossMaxHP = boss.GetComponent<Boss>().hp;
-    }
-
-    void Update()
-    {
-        //Debug.Log(boss.GetComponent<boss>().hp);
-        //Debug.Log(boss.GetComponent<boss>().hp / 20 * 12f);
-        float bossHP = boss.GetComponent<Boss>().hp;
-        transform.localScale = new Vector3(bossHP / bossMaxHP * 10f, 0.5f, 1f);
+        transform.localScale = new Vector3((float)hp / (float)maxHp * 10f, 0.5f, 1f);
     }
 }

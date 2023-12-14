@@ -3,10 +3,10 @@ using System.Collections.Generic;
 using UnityEngine;
 using TMPro;
 
-public class ScoreText : MonoBehaviour
+public class TextUI : MonoBehaviour
 {
     TextMeshProUGUI text;
-    const string defaultMsg = "Score: ";
+    public string defaultMsg;
 
     void Start()
     {
@@ -14,8 +14,8 @@ public class ScoreText : MonoBehaviour
         text.text = defaultMsg + 0;
     }
 
-    public void UpdateScore(int score)
+    public void UpdateText(int value)
     {
-        text.text = defaultMsg + score;
+        text.text = defaultMsg + value;
     }
 }

@@ -4,6 +4,7 @@ using UnityEngine;
 
 public class PlayerController : MonoBehaviour
 {
+    public int maxHp { get; private set; }
     public const int playerSpeed = 500;
     private const int jumpForce = 800;
 
@@ -17,22 +18,27 @@ public class PlayerController : MonoBehaviour
     public int hp { get; private set; }
 
     private delegate void PhysicsOp();
-    private delegate void TakeDamageOp(int damage);
-    private struct TakeDamageProcess
-    {
-        public TakeDamageOp takeDamageOp;
-        public int damage;
-    }
+    private delegate void UpdateHpBar(int hp, int maxHp);
 
-    private List<PhysicsOp> physicsOps;
+    private List<PhysicsOp> _physicsOps;
+    private UpdateHpBar _updateHpBar;
+
+    //private delegate void TakeDamageOp(int damage);
+    //private struct TakeDamageProcess
+    //{
+    //    public TakeDamageOp takeDamageOp;
+    //    public int damage;
+    //}
+
     //private List<FixedUpdateOp> fixedUpdateOps;
     //private List<TakeDamageOp> takeDamageOps;
-    private List<TakeDamageProcess> takeDamageProcesses;
+    //private List<TakeDamageProcess> _takeDamageProcesses;
 
     private void Start()
     {
         isTargetting = true;
-        hp = 30;
+        maxHp = 30;
+        hp = maxHp;
         
         rd = GetComponent<Rigidbody>();
         dataManager = GameObject.FindGameObjectWithTag("GameManager").GetComponent<DataManager>();
@@ -40,38 +46,40 @@ public class PlayerController : MonoBehaviour
         playerFSM = new FSM<PMsg>();
         playerFSM.Start(new IdlePlayerState(this));
 
-        physicsOps = new List<PhysicsOp>();
-        takeDamageProcesses = new List<TakeDamageProcess>();
-        //takeDamageOps = new List<TakeDamageOp>();
-        //fixedUpdateOps = new List<FixedUpdateOp>();
+        _physicsOps = new List<PhysicsOp>();
+        _updateHpBar = GameObject.Find("PlayerHPBar").GetComponent<HPBar>().UpdateHp;
     }
+
+    //_takeDamageProcesses = new List<TakeDamageProcess>();
+    //takeDamageOps = new List<TakeDamageOp>();
+    //fixedUpdateOps = new List<FixedUpdateOp>();
 
     private void Update()
     {
         playerFSM.ManageState();
         //playerFSM.PrintLog();
-        if (hp <= 0) playerFSM.SendMessage(PMsg.Dead);
+        //if (hp <= 0) playerFSM.SendMessage(PMsg.Dead);
     }
 
     private void FixedUpdate()
     {
-        foreach (var physicsOp in physicsOps)
+        foreach (var physicsOp in _physicsOps)
             physicsOp();
-        physicsOps.Clear();
-
-        foreach (var takeDamageProcess in takeDamageProcesses)
-            takeDamageProcess.takeDamageOp(takeDamageProcess.damage);
-        //foreach (var takeDamageOp in takeDamageOps)
-        //    takeDamageOp.Invoke();
-
-        //foreach (var fixedUpdateOp in fixedUpdateOps)
-        //    fixedUpdateOp();
+        _physicsOps.Clear();
     }
+
+    //foreach (var takeDamageProcess in _takeDamageProcesses)
+    //    takeDamageProcess.takeDamageOp(takeDamageProcess.damage);
+    //foreach (var takeDamageOp in takeDamageOps)
+    //    takeDamageOp.Invoke();
+
+    //foreach (var fixedUpdateOp in fixedUpdateOps)
+    //    fixedUpdateOp();
 
     public int GetPlayerSpeed() { return playerSpeed; }
     public float GetYVel() { return rd.velocity.y; }
 
-    public void Move() { physicsOps.Add(moveOp); }
+    public void Move() { _physicsOps.Add(moveOp); }
 
     private void moveOp()
     {
@@ -102,7 +110,7 @@ public class PlayerController : MonoBehaviour
         return direction;
     }
 
-    public void Jump() { physicsOps.Add(jumpOp); }
+    public void Jump() { _physicsOps.Add(jumpOp); }
 
     private void jumpOp()
     {
@@ -136,15 +144,15 @@ public class PlayerController : MonoBehaviour
 
     public void Stop() { rd.velocity = new Vector3(0f, rd.velocity.y, 0f); }
 
-    // FixedUpdate에서 호출해야 함
     public void TakeDamage(int damage)
     {
-        Debug.Log("curr HP: " + hp);
         hp -= damage;
+        if (hp <= 0) playerFSM.SendMessage(PMsg.Dead);
+
         Collider coll = GetComponent<Collider>();
         coll.enabled = false;
         coll.enabled = true;
-
+        _updateHpBar.Invoke(hp > 0 ? hp : 0, maxHp);
     }
 
     private void OnCollisionEnter(Collision collision)
@@ -158,16 +166,6 @@ public class PlayerController : MonoBehaviour
         if (!other.CompareTag("EnemyAttack")) return;
 
         Hitbox hitbox = other.GetComponent<Hitbox>();
-        /*
-        if (hitbox.IsContinuousDamagable())
-        {
-            //StartCoroutine(takeContinuosDmg(hitbox.GetDmg()));
-            //fixedUpdateOps.Add(TakeDamage);
-            //TakeDamageProcess
-            //takeDamageProcesses.Add();
-            return;
-        }
-        */
         TakeDamage(hitbox.GetDmg());
     }
 
@@ -177,10 +175,10 @@ public class PlayerController : MonoBehaviour
         //StopCoroutine(takeContinuosDmg);
     }
 
-    private void takeContinuousDmg(int damage)
-    {
+    //private void takeContinuousDmg(int damage)
+    //{
 
-    }
+    //}
 
     public void Explode()
     {

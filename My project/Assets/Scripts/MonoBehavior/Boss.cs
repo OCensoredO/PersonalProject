@@ -5,6 +5,8 @@ using UnityEngine.SceneManagement;
 
 public class Boss : MonoBehaviour
 {
+    private const int maxHp = 50;
+
     public int hp { get; private set; }
     private float speed;
     private Coroutine patternCoroutine;
@@ -17,13 +19,15 @@ public class Boss : MonoBehaviour
 
     private FSM<BMsg> bossFSM;
 
-    private delegate void UpdateGameStatus(int dmg);
-    private UpdateGameStatus updateGameStatus;
+    private delegate void UpdateGameStatus(int val);
+    private delegate void UpdateHpBar(int val1, int val2);
+    private UpdateGameStatus _updateGameStatus;
+    private UpdateHpBar _updateHpBar;
 
     // hp값은 임시로 지정한 값
     private void Start()
     {
-        hp = 50;
+        hp = maxHp;
         speed = 2f;
         dMan = GameObject.FindGameObjectWithTag("GameManager").GetComponent<DataManager>();
 
@@ -37,7 +41,8 @@ public class Boss : MonoBehaviour
         renderer = GetComponent<Renderer>();
         lineRenderer = GetComponent<LineRenderer>();
 
-        updateGameStatus = GameObject.FindGameObjectWithTag("GameManager").GetComponent<GameManager>().UpdateStatus;
+        _updateGameStatus = GameObject.FindGameObjectWithTag("GameManager").GetComponent<GameManager>().UpdateStatus;
+        _updateHpBar = GameObject.Find("BossHPBar").GetComponent<HPBar>().UpdateHp;
 
         bossFSM = new FSM<BMsg>();
         bossFSM.Start(new IdleBossState(this));
@@ -75,10 +80,13 @@ public class Boss : MonoBehaviour
     private void OnTriggerEnter(Collider other)
     {
         if (other.tag != "Bullet") return;
+
         // 인덱스값은 임시로 0으로 둠
         int dmg = dMan.gameData.bullets[0].damage;
         hp -= dmg;
-        updateGameStatus.Invoke(dmg);
+
+        _updateGameStatus.Invoke(dmg);
+        _updateHpBar.Invoke(hp, maxHp);
     }
 
     public void Heal() { hp++; }
