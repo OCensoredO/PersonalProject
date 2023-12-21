@@ -5,10 +5,11 @@ using UnityEngine.SceneManagement;
 
 public class Boss : MonoBehaviour
 {
-    private const int maxHp = 50;
+    private const int maxHp = 300;
 
     public int hp { get; private set; }
     private float speed;
+    private float sprayCool;
     private Coroutine patternCoroutine;
     //private IEnumerator[] patterns;
 
@@ -24,18 +25,15 @@ public class Boss : MonoBehaviour
     private UpdateGameStatus _updateGameStatus;
     private UpdateHpBar _updateHpBar;
 
+    public GameObject fBulletPrefab;
+
     // hp값은 임시로 지정한 값
     private void Start()
     {
         hp = maxHp;
         speed = 2f;
+        sprayCool = 0.17f;
         dMan = GameObject.FindGameObjectWithTag("GameManager").GetComponent<DataManager>();
-
-        //patterns = new IEnumerator[3];
-        //patterns[0] = shootBeam();
-        //patterns[1] = generateLaserBox();
-        //patterns[2] = snipe();
-        //playerObj = GameObject.FindGameObjectWithTag("Player");
 
         // 시연용 기능인 SetColor()를 위해 임시로 선언한 변수
         renderer = GetComponent<Renderer>();
@@ -56,7 +54,7 @@ public class Boss : MonoBehaviour
         bossFSM.ManageState();
         //bossFSM.PrintLog();
 
-        if (hp > 20)
+        if (hp > 120)
         {
             bossFSM.SendMessage(BMsg.EnoughHP);
             return;
@@ -66,7 +64,7 @@ public class Boss : MonoBehaviour
             bossFSM.SendMessage(BMsg.Die);
             return;
         }
-        if (hp < 10)
+        if (hp < 60)
         {
             bossFSM.SendMessage(BMsg.LowHP);
         }
@@ -85,11 +83,15 @@ public class Boss : MonoBehaviour
         int dmg = dMan.gameData.bullets[0].damage;
         hp -= dmg;
 
-        _updateGameStatus.Invoke(dmg);
-        _updateHpBar.Invoke(hp, maxHp);
+        _updateGameStatus?.Invoke(dmg);
+        _updateHpBar?.Invoke(hp, maxHp);
     }
 
-    public void Heal() { hp++; }
+    public void Heal()
+    {
+        hp += 10;
+        sprayCool = 0.05f;
+    }
     // 시연을 위해 임시로 기능 구현
     public void Restart()
     {
@@ -106,9 +108,8 @@ public class Boss : MonoBehaviour
     {
         int patternNum = Random.Range(0, 3);
 
-        //patternCoroutine = snipe();
-        StartCoroutine(shootBeam());
-        /*
+        //StartCoroutine(shootBeam());
+
         switch (patternNum)
         {
             case 0:
@@ -127,7 +128,7 @@ public class Boss : MonoBehaviour
             default:
                 break;
         }
-        */
+
     }
 
     public void StopPattern()
@@ -256,6 +257,8 @@ public class Boss : MonoBehaviour
         // 조준-빔 발사 3회 반복
         while (repeatedCount < 3)
         {
+            if (playerObj == null) break;
+
             // 현 프레임에서의 플레이어 위치 구해서 currPos에 저장
             currPos = playerObj.transform.position;
 
@@ -293,9 +296,22 @@ public class Boss : MonoBehaviour
             prevPos = currPos;
         }
 
-        //Destroy(beamInstance);
         enableLineRenderer(false);
-        //StopCoroutine(patternCoroutine);
+    }
+
+    public void StartSpray() { StartCoroutine(Spray()); }
+
+    private IEnumerator Spray()
+    {
+        while (true)
+        {
+       
+
+            GameObject fBullet = Instantiate(fBulletPrefab, transform.position, transform.rotation);
+            Destroy(fBullet, 10f);
+
+            yield return new WaitForSeconds(sprayCool);
+        }
     }
 
     public void GetClosertoPlayer()

@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 public class GameManager : MonoBehaviour
 {
@@ -31,10 +32,15 @@ public class GameManager : MonoBehaviour
         _updateScoreText.Invoke(score);
         _updateMoneyText.Invoke(money);
     }
-}
 
-//void Update()
-//{
-//    //Command command = inputManager.ManageInput();
-//    //if (command != null) command.Execute(player);
-//}
+    public void ReadyForRestart() { StartCoroutine(readyForRestart()); }
+
+    private IEnumerator readyForRestart()
+    {
+        while (true)
+        {
+            if (Input.anyKeyDown) SceneManager.LoadScene("Main");
+            yield return null;
+        }
+    }
+}

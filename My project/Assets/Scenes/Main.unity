@@ -251,6 +251,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c431e1c65218d0d4fa4769b2d5aec181, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  fBulletPrefab: {fileID: 1726593575423505803, guid: c5341eac1fd3c4c4a883144f84ded681, type: 3}
 --- !u!120 &18462306
 LineRenderer:
   m_ObjectHideFlags: 0

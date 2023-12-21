@@ -151,6 +151,13 @@ public class BewaringBossState : BossState
                 return null;
         }
     }
+
+    public override void Exit()
+    {
+        base.Exit();
+
+        boss.StartSpray();
+    }
 }
 
 public class MeleeBossState : BossBattleState

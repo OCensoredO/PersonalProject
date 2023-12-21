@@ -36,8 +36,6 @@ public abstract class PlayerState : IState<PMsg>
     public virtual void Exit() { return; }
     public virtual IState<PMsg> OnMessaged(PMsg pmsg)
     {
-        Debug.Log(pmsg);
-
         switch (pmsg)
         {
             case PMsg.Dead:
